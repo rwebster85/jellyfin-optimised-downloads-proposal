@@ -1,4 +1,4 @@
-# Optimised Video Downloads
+# Proposal: Optimised Video Downloads
 
 Provide clients with the ability to download videos from the library in lower quality, smaller file sizes.
 
@@ -25,6 +25,39 @@ Optimised downloading enables downloading media for offline/travel consumption b
 - Still requires significant technical investment and architectural implementation
 
 ## Viable Options
+
+### A: Transcode -> Download
+
+Client download requests use server transcoding according to download and user preference quality options, to generate a lower-quality, smaller filesize copy. This will be served to the client in-place of the full-size original. Options for the server admin include mutliple quality tiers with names (e.g. "High", "Standard"), resolution (1080p, 720p) and bitrate (3 Mbps, 800 Kbps) targets. Users could select their preference from the list of quality tiers in their user settings. Optimised files are stored for future download requests and regenerated when needed.
+
+**Pros**
+
+- Scalable - Server admin is not concerned with managing these optimised downloads.
+- Automated - Background processes handle generation and removal.
+- Self contained - Everything happens on the server.
+
+**Cons**
+
+- Real-time cost - Transcoding takes a not-insignificant amount of resources.
+- Unpredictable quality - Bitrate and resolution aren't obvious indicators of quality produced, and different hardware can produce different results.
+- Unpredictable storage requirements - Storage requirements are unknown, and storage capacity is highly expensive.
+
+
+### B: Curated hand-placed files
+
+Server admins generate their own lower-quality files according to their tastes, and store them on the server for the download system to serve. These files would live outside of the library, pointed to in settings, and their directory structure would mirror the library.
+
+**Pros**
+
+- Highly curated - Server admin has a hand in each file/format.
+- Predictable results - Files are chosen by the admin and can be checked for quality issues.
+- Tailored quality - Files can be tailored for their requirements, such as darkness, fast-moving action, or high frequency film grain.
+
+**Cons**
+
+- Time intensive - Manual curation and production takes time
+- High storage requirements - Multiple quality tiers for multiple video versions required
+- Not scalable - Every new video potentially requires companion optimised versions manually sourced
 
 ### Option 1. Curated video library of companion files for download, outside of Jellyfin library
 
@@ -110,3 +143,7 @@ Assuming quality tier options like Option 1, potential for storing the transcode
 Mixture of both, with a phased approach.
 
 ...
+
+## Design & Implementation
+
+Until an implementation to the proposed solution is decided, what follows will be a high-level, logical design. When an implementation is decided, low-level concrete designs will be produced.
