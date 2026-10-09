@@ -25,20 +25,19 @@ Provide clients with the ability to download videos from the library in lower qu
         - [5.3.2. Multiple optimised download storage locations](#532-multiple-optimised-download-storage-locations)
     - [5.4. Recommended Solution](#54-recommended-solution)
 - [6. Research (MVP & Spike)](#6-research-mvp--spike)
-    - [6.1. Transcoding](#61-transcoding)
-        - [6.1.1. Notes](#611-notes)
-- [7. Cost (Time & Computing)](#7-cost-time--computing)
-    - [7.1. Transcoding](#71-transcoding)
-    - [7.2. On-demand download transcode: I, Robot (2004)](#72-on-demand-download-transcode-i-robot-2004)
-    - [7.3. Encoder comparison: Dune (2021), same 300-second segment at 1920×804](#73-encoder-comparison-dune-2021-same-300-second-segment-at-1920%C3%97804)
-        - [7.3.1. Example](#731-example)
-        - [7.3.2. Pros](#732-pros)
-        - [7.3.3. Cons](#733-cons)
-    - [7.4. Option 2. Transcode on-the-fly per download request](#74-option-2-transcode-on-the-fly-per-download-request)
-        - [7.4.1. Pros](#741-pros)
-        - [7.4.2. Cons](#742-cons)
-- [8. Proposed Solution](#8-proposed-solution)
-- [9. Design & Implementation](#9-design--implementation)
+    - [6.1. Manual Curation MVP](#61-manual-curation-mvp)
+    - [6.2. Transcode -> Download Spike](#62-transcode---download-spike)
+        - [6.2.1. Computation results](#621-computation-results)
+        - [6.2.2. On-demand download transcode: I, Robot (2004)](#622-on-demand-download-transcode-i-robot-2004)
+    - [6.3. Encoder comparison: Dune (2021), same 300-second segment at 1920×804](#63-encoder-comparison-dune-2021-same-300-second-segment-at-1920%C3%97804)
+        - [6.3.1. Example](#631-example)
+        - [6.3.2. Pros](#632-pros)
+        - [6.3.3. Cons](#633-cons)
+    - [6.4. Option 2. Transcode on-the-fly per download request](#64-option-2-transcode-on-the-fly-per-download-request)
+        - [6.4.1. Pros](#641-pros)
+        - [6.4.2. Cons](#642-cons)
+- [7. Proposed Solution](#7-proposed-solution)
+- [8. Design & Implementation](#8-design--implementation)
 
 <!-- /TOC -->
 
@@ -115,31 +114,41 @@ Both options provide value for different use-cases. As such I think both options
 
 ## 6. Research (MVP & Spike)
 
-### 6.1. Transcoding
+### 6.1. Manual Curation MVP
+
+Beginning w/c 21st September, an MVP of this feature was implemented in Server as well as Web and Android clients. Some logic is heavily constrained by my own library naming conventions for filename matching and lookup, but aside from that the implementation could broadly match. See the `optimised-downloads` branches in my forks: <a href="https://github.com/rwebster85/jellyfin/tree/optimised-downloads" target="_blank">Server</a>, <a href="https://github.com/rwebster85/jellyfin-web/tree/optimised-downloads" target="_blank">Web</a>, <a href="https://github.com/rwebster85/jellyfin-android/tree/optimised-downloads" target="_blank">Android</a>.
+
+This MVP served as an immediate use-case for my own personal use and has been tested in a real-world setting. Optimised downloads were created using a custom encoding workflow tool of my own creation, tailored to my needs, from my own library source videos.
+
+**Testing Notes**
+
+- Client devices tested incldue a Samsung Galaxy S23 and a Lenovo Y700 Gen 3 (Legion) tablet
+- My own use-case preferred the `Substitute` download link option, rather than `SeparateAction`. See <a href="https://github.com/rwebster85/jellyfin/blob/transcode-downloads/MediaBrowser.Model/Configuration/DownloadBehaviour.cs" target="_blank">DownloaderBehaviour.cs</a>
+
+### 6.2. Transcode -> Download Spike
 
 A spike was carried out w/c 5th October 2026 to research feasibility, implementation, scope, and upstream impact. The work was branched off my `optimised-downloads` branch (manual curation MVP) with the manual logic removed.
 
 The results of this work can be viewed as follows: <a href="https://github.com/rwebster85/jellyfin/tree/transcode-downloads" target="_blank">Server</a>, <a href="https://github.com/rwebster85/jellyfin-web/tree/transcode-downloads" target="_blank">Web</a>.
 
-#### 6.1.1. Notes
+**Source Code Notes**
+
 - Encoding is fixed at `mkv h264 1280x720 750k aac 2ch 192k`. See `DownloadTranscoder.cs` <a href="https://github.com/rwebster85/jellyfin/blob/d748fc95051c1d2eac464ac665d5dfafe462f450/Jellyfin.Api/Helpers/DownloadTranscoder.cs#L56" target="_blank">line 56</a> and <a href="https://github.com/rwebster85/jellyfin/blob/d748fc95051c1d2eac464ac665d5dfafe462f450/Jellyfin.Api/Helpers/DownloadTranscoder.cs#L249" target="_blank">line 249</a>
 - Some features and UI elements may remain from the manual branch but are non-functional
 - Unlike the MVP, the spike did not cover Android, but implementation would be broadly similar.
 
-## 7. Cost (Time & Computing)
-
-### 7.1. Transcoding
+#### 6.2.1. Computation results
 
 Transcoding depends entirely on the hardware (or software) solution available on the server. As such, a wide variety of configurations will produce varying results, ranging from potential image quality differences to time-to-transcode delay.
 
 To establish a baseline for cost I tested encoding from two different sources on two different machines. One machine used a Windows 11 machine RTX 5090 with NVENC encoding, the other used a Linux Mint system with an i5-12600 and Intel Quicksync hardware transcoding. Both runs used `ffmpeg` commands as per what Jellyfin would generate with basline settings.
 
-**Notes**
+**Results Notes**
 
-- Both encoders were idle besides the runnig task.
+- Both encoders were idle besides the running task, so real-world result will vary.
 - Jellyfin caps resolution to gates based on bitrate. This was not adjusted in the spike, but implementation should override that behaviour.
 
-### 7.2. On-demand download transcode: I, Robot (2004)
+#### 6.2.2. On-demand download transcode: I, Robot (2004)
 
 Source: 1:54:43, HEVC Main 10 SDR, 1920×822, 7.2 GB.
 command: H.264 at 960×410, 750 kbps video, AAC stereo at 192 kbps, with the encoder preset on `auto`.
@@ -151,7 +160,7 @@ command: H.264 at 960×410, 750 kbps video, AAC stereo at 192 kbps, with the enc
 | Time for the whole film | **1 min 26 s** | **2 min 40 s** |
 | Output | 771 MiB, 939.5 kbps | 773 MiB, 941.6 kbps |
 
-### 7.3. Encoder comparison: Dune (2021), same 300-second segment at 1920×804
+### 6.3. Encoder comparison: Dune (2021), same 300-second segment at 1920×804
 
 | Encoder | Setting | Speed | Bitrate | VMAF vs source |
 |---|---|---|---|---|
@@ -160,8 +169,7 @@ command: H.264 at 960×410, 750 kbps video, AAC stereo at 192 kbps, with the enc
 | RTX 5090, NVENC | 3 Mbps target | – | 2.558 Mbps | 82.93 |
 | i5-12600, QuickSync | 3 Mbps target | – | 2.998 Mbps | 83.40 |
 
-
-#### 7.3.1. Example
+#### 6.3.1. Example
 
 A movie might be located in a library like so:
 
@@ -201,20 +209,20 @@ Potential for a fallback, if quality tiers are enabled but only one download fil
 In all cases, if a download can't be matched, the user would be served the original file (perhaps with a confirmation prompt).
 
 
-#### 7.3.2. Pros
+#### 6.3.2. Pros
 
 - Curated files bring no unpredictability. They're sourced/generated by the admin
 - Flexible: admins can offer a single or multiple options for end users
 - Mirrors streaming service UX and infrastructure: pre-encoded downloadable versions of content and different quality levels
 
-#### 7.3.3. Cons
+#### 6.3.3. Cons
 
 - Difficult to scale without automated tools for admins to make use of
 - Additional complexity with library management
 - Automated 3rd party library tools may need to be adjusted, or possibly unsuitable to integrate
 
 
-### 7.4. Option 2. Transcode on-the-fly per download request
+### 6.4. Option 2. Transcode on-the-fly per download request
 
 A downloadable file is generated/streamed (using HLS) to the client device when a download is requested. Quality could be set by the server admin using tiers, like Option 1, for simplicity. Less complicated than users selecting their preferred bitrate.
 
@@ -222,24 +230,24 @@ Technically highly complex and requires not-insignificant integration with clien
 
 Assuming quality tier options like Option 1, potential for storing the transcoded file at the same time as first serve (Just-In-Time Transcoding with Caching). The first downloading user generates the file, all proceeding requests would download the file without needing transcoding. Although this may prevent HLS muxing.
 
-#### 7.4.1. Pros
+#### 6.4.1. Pros
 
 - Potentially scalable
 - No manual work required of admins
 
-#### 7.4.2. Cons
+#### 6.4.2. Cons
 
 - Unpredictable, difficult to guarantee the stream ended with success for the user
 - Transcoding is expensive. Users may initiate dozens of downloads that may all need to be transcoded (potentially alleviated with a queue system, requires client integration)
 - Potentially long first time download
 
 
-## 8. Proposed Solution
+## 7. Proposed Solution
 
 Mixture of both, with a phased approach.
 
 ...
 
-## 9. Design & Implementation
+## 8. Design & Implementation
 
 Until an implementation to the proposed solution is decided, what follows will be a high-level, logical design. When an implementation is decided, low-level concrete designs will be produced.
