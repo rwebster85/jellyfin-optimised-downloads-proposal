@@ -117,14 +117,14 @@ Both options provide value for different use-cases. As such I think both options
 
 ### 6.1. Transcoding
 
-A spike was carried out w/c 5th October 2026 to research feasibility, implementation, scope, and upstream impact. The work was branched off my `optimised-downloads` branch (manual curation MVP) with the manual logic removed. The results of this work can be viewed as follows:
+A spike was carried out w/c 5th October 2026 to research feasibility, implementation, scope, and upstream impact. The work was branched off my `optimised-downloads` branch (manual curation MVP) with the manual logic removed.
 
-- [Server](https://github.com/rwebster85/jellyfin/tree/transcode-downloads)
-- [Web](https://github.com/rwebster85/jellyfin-web/tree/transcode-downloads)
+The results of this work can be viewed as follows: <a href="https://github.com/rwebster85/jellyfin/tree/transcode-downloads" target="_blank">Server</a>, <a href="https://github.com/rwebster85/jellyfin-web/tree/transcode-downloads" target="_blank">Web</a>.
 
 #### 6.1.1. Notes
-- Encoding is fixed at `mkv h264 1280x720 750k aac 2ch 192k`. See 
+- Encoding is fixed at `mkv h264 1280x720 750k aac 2ch 192k`. See `DownloadTranscoder.cs` <a href="https://github.com/rwebster85/jellyfin/blob/d748fc95051c1d2eac464ac665d5dfafe462f450/Jellyfin.Api/Helpers/DownloadTranscoder.cs#L56" target="_blank">line 56</a> and <a href="https://github.com/rwebster85/jellyfin/blob/d748fc95051c1d2eac464ac665d5dfafe462f450/Jellyfin.Api/Helpers/DownloadTranscoder.cs#L249" target="_blank">line 249</a>
 - Some features and UI elements may remain from the manual branch but are non-functional
+- Unlike the MVP, the spike did not cover Android, but implementation would be broadly similar.
 
 ## 7. Cost (Time & Computing)
 
