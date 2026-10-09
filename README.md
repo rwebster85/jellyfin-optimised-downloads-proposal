@@ -1,10 +1,10 @@
 <!-- TOC ignore:true -->
-# Proposal: Optimised Video Downloads
+# Proposal: Optimised Video Downloads <a id="proposal"></a>
 
 Provide clients with the ability to download videos from the library in lower quality, smaller file sizes.
 
 <!-- TOC ignore:true -->
-## 1. Table of Contents
+## 1. Table of Contents <a id="toc"></a>
 
 <!-- TOC depthfrom:2 depthto:3 orderedlist:true -->
 
@@ -20,13 +20,13 @@ Provide clients with the ability to download videos from the library in lower qu
 
 <!-- /TOC -->
 
-## 2. Motivation
+## 2. Motivation <a id="motivation"></a>
 
 Some Jellyfin clients provide the ability to download media for offline play, but in their original formats and filesizes.
 
 Optimised downloading enables downloading media for offline/travel consumption but without the burden of large storage requirements. Libraries may contain high bitrate/resolution files that can't feasibly be stored in large quantities on consumer portable devices such as phones and tablets.
 
-## 3. Constraints
+## 3. Constraints <a id="constraints"></a>
 
 - Video files can come in a variety of container/codec configurations.
 - Subtitles can either be embedded or external, in a variety of formats.
@@ -34,28 +34,28 @@ Optimised downloading enables downloading media for offline/travel consumption b
 - Transcoding/re-encoding takes time and resources.
 - Current transcoding behaviour not equipped to handle download for playback without adaptation.
 
-## 4. Considerations
+## 4. Considerations <a id="considerations"></a>
 
 - Multiple options for server admins could be made available and are not exclusive.
 - Options and functionality should be both simple and valuable.
 - Jellyfin provides transcoding functionality that could be adapted, reducing technical complexity.
 - Still requires significant technical investment and architectural implementation.
 
-## 5. Proposed Options
+## 5. Proposed Options <a id="options"></a>
 
 What follows is an appraisal of two potential solutions. They could be implemented alongside eachother, or only one of them selected. Conceptually they both share these core concepts:
 
-### 5.1. Common concepts
+### 5.1. Common concepts <a id="common"></a>
 
 - Simplified end-user epxerience
 - Multiple Quality Tiers
-    - Should include options for the server admin to set quality tiers with names (e.g. "High", "Standard") and resolution (1080p, 720p) for better end user UX. [Option A](#51-option-a-transcode---download) should also include bitrate targets (3Mbps, 800Kbps) for transcoding.
+    - Should include options for the server admin to set quality tiers with names (e.g. "High", "Standard") and resolution (1080p, 720p) for better end user UX. [Option A](#option-a) should also include bitrate targets (3Mbps, 800Kbps) for transcoding.
 - Multiple optimised download storage locations
     - Admins should be able to select multiple locations for either transcode download or for manual curation file storage.
 
 ---
 
-### 5.2. Option A: Transcode -> Download
+### 5.2. Option A: Transcode -> Download <a id="option-a"></a>
 
 Client download requests use server transcoding according to download and user preference quality options, to generate a lower-quality, smaller filesize copy. This will be served to the client in-place of the full-size original. Optimised files are stored for future download requests and regenerated when needed.
 
@@ -104,7 +104,7 @@ command: H.264 at 960×410, 750 kbps video, AAC stereo at 192 kbps, with the enc
 * **Con:** Unpredictable storage requirements - Storage requirements are unknown, and storage capacity is highly expensive.
 
 
-### 5.3. Option B: Curated hand-placed files
+### 5.3. Option B: Curated hand-placed files <a id="option-b"></a>
 
 Server admins generate/source their own lower-quality files according to their tastes, and store them on the server for the download system to serve. These files would live outside of the library, pointed to in settings, and their directory structure would mirror the library.
 
@@ -137,14 +137,14 @@ This MVP served as an immediate use-case for my own personal use and has been te
 * **Con:** Not scalable - Every new video potentially requires companion optimised versions manually sourced.
 
 
-### 5.4. Recommended Solution
+### 5.4. Recommended Solution <a id="recommendation"></a>
 
-Based on the research and results of the MVP and spike, **[Option A: Transcode -> Download](#52-option-a-transcode---download)** is the clear choice for friction vs value for server admins. It has less work compared to manual curation, scales better, and integrates well with the existing systems in Jellyfin.
+Based on the research and results of the MVP and spike, **[Option A: Transcode -> Download](#option-a)** is the clear choice for friction vs value for server admins. It has less work compared to manual curation, scales better, and integrates well with the existing systems in Jellyfin.
 
-However, both options provide value for different use-cases. As such my suggestion going forward would be to implement both options together in phases. [Option A - Transcoding](#option-a-transcode---download) should be implemented in Phase 1, and if accepted, [Option B - Manual Curation](#option-b-curated-hand-placed-files) in phase 2.
+However, both options provide value for different use-cases. As such my suggestion going forward would be to implement both options together in phases. [Option A - Transcoding](#option-a) should be implemented in Phase 1, and if accepted, [Option B - Manual Curation](#option-b) in phase 2.
 
 
-## 6. High-Level Logical Design
+## 6. High-Level Logical Design <a id="hld"></a>
 
 Until an implementation to the proposed solution is decided, what follows will be a high-level, logical design. When an implementation is decided, low-level concrete designs will be produced.
 
