@@ -110,7 +110,7 @@ Server admins generate/source their own lower-quality files according to their t
 
 **Manual Curation MVP**
 
-Beginning w/c 21st September, an MVP of this feature was implemented in Server as well as Web and Android clients. Some logic is heavily constrained by my own library naming conventions for filename matching and lookup, but aside from that the implementation could broadly match. See the `optimised-downloads` branches in my forks: <a href="https://github.com/rwebster85/jellyfin/tree/optimised-downloads" target="_blank">Server</a>, <a href="https://github.com/rwebster85/jellyfin-web/tree/optimised-downloads" target="_blank">Web</a>, <a href="https://github.com/rwebster85/jellyfin-android/tree/optimised-downloads" target="_blank">Android</a>.
+Beginning w/c 21st September 2026, an MVP of this feature was implemented in Server as well as Web and Android clients. Some logic is heavily constrained by my own library naming conventions for filename matching and lookup, but aside from that the implementation could broadly match. See the `optimised-downloads` branches in my forks: <a href="https://github.com/rwebster85/jellyfin/tree/optimised-downloads" target="_blank">Server</a>, <a href="https://github.com/rwebster85/jellyfin-web/tree/optimised-downloads" target="_blank">Web</a>, <a href="https://github.com/rwebster85/jellyfin-android/tree/optimised-downloads" target="_blank">Android</a>.
 
 This MVP served as an immediate use-case for my own personal use and has been tested in a real-world setting. Optimised downloads were created using a custom encoding workflow tool of my own creation, tailored to my needs, from my own library source videos.
 
