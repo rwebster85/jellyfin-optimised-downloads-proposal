@@ -20,10 +20,12 @@ Provide clients with the ability to download videos from the library in lower qu
     - [5.2. Option B: Curated hand-placed files](#52-option-b-curated-hand-placed-files)
         - [5.2.1. Pros](#521-pros)
         - [5.2.2. Cons](#522-cons)
-    - [5.3. Option 1. Curated video library of companion files for download, outside of Jellyfin library](#53-option-1-curated-video-library-of-companion-files-for-download-outside-of-jellyfin-library)
-        - [5.3.1. Example](#531-example)
-        - [5.3.2. Pros](#532-pros)
-        - [5.3.3. Cons](#533-cons)
+    - [5.3. Common](#53-common)
+        - [5.3.1. Multiple Quality Tiers](#531-multiple-quality-tiers)
+        - [5.3.2. Multiple optimised download storage locations](#532-multiple-optimised-download-storage-locations)
+        - [5.3.3. Example](#533-example)
+        - [5.3.4. Pros](#534-pros)
+        - [5.3.5. Cons](#535-cons)
     - [5.4. Option 2. Transcode on-the-fly per download request](#54-option-2-transcode-on-the-fly-per-download-request)
         - [5.4.1. Pros](#541-pros)
         - [5.4.2. Cons](#542-cons)
@@ -49,7 +51,7 @@ Optimised downloading enables downloading media for offline/travel consumption b
 
 ## 4. Considerations
 
-- Several options for server admins could be made available and are not exclusive
+- Multiple options for server admins could be made available and are not exclusive
 - Options and functionality should be both simple and valuable
 - Jellyfin provides transcoding functionality that could be adapted, reducing technical complexity
 - Still requires significant technical investment and architectural implementation
@@ -58,7 +60,7 @@ Optimised downloading enables downloading media for offline/travel consumption b
 
 ### 5.1. Option A: Transcode -> Download
 
-Client download requests use server transcoding according to download and user preference quality options, to generate a lower-quality, smaller filesize copy. This will be served to the client in-place of the full-size original. Options for the server admin include mutliple quality tiers with names (e.g. "High", "Standard"), resolution (1080p, 720p) and bitrate (3 Mbps, 800 Kbps) targets. Users could select their preference from the list of quality tiers in their user settings. Optimised files are stored for future download requests and regenerated when needed.
+Client download requests use server transcoding according to download and user preference quality options, to generate a lower-quality, smaller filesize copy. This will be served to the client in-place of the full-size original. Optimised files are stored for future download requests and regenerated when needed.
 
 #### 5.1.1. Pros
 
@@ -75,7 +77,7 @@ Client download requests use server transcoding according to download and user p
 
 ### 5.2. Option B: Curated hand-placed files
 
-Server admins generate their own lower-quality files according to their tastes, and store them on the server for the download system to serve. These files would live outside of the library, pointed to in settings, and their directory structure would mirror the library.
+Server admins generate/source their own lower-quality files according to their tastes, and store them on the server for the download system to serve. These files would live outside of the library, pointed to in settings, and their directory structure would mirror the library.
 
 #### 5.2.1. Pros
 
@@ -89,13 +91,22 @@ Server admins generate their own lower-quality files according to their tastes, 
 - High storage requirements - Multiple quality tiers for multiple video versions required
 - Not scalable - Every new video potentially requires companion optimised versions manually sourced
 
-### 5.3. Option 1. Curated video library of companion files for download, outside of Jellyfin library
+### 5.3. Common
 
-Server admins are responsible for curating their own files, and deciding on the format/version available.
+#### 5.3.1. Multiple Quality Tiers
 
-Application settings provided for admins to specify locations for a download file lookup. Option provided to enable a new download API/menu option, or use the existing one. Downloadable files must match their video library counterpart folder structure.
+Should include options for the server admin to set quality tiers with names (e.g. "High", "Standard") and resolution (1080p, 720p) for better end user UX. [Option A](#51-option-a-transcode---download) should also include bitrate targets (3Mbps, 800Kbps) for transcoding.
 
-#### 5.3.1. Example
+#### 5.3.2. Multiple optimised download storage locations
+
+Admins should be able to select multiple locations for either transcode download or for manual curation file storage.
+
+
+
+
+
+
+#### 5.3.3. Example
 
 A movie might be located in a library like so:
 
@@ -135,13 +146,13 @@ Potential for a fallback, if quality tiers are enabled but only one download fil
 In all cases, if a download can't be matched, the user would be served the original file (perhaps with a confirmation prompt).
 
 
-#### 5.3.2. Pros
+#### 5.3.4. Pros
 
 - Curated files bring no unpredictability. They're sourced/generated by the admin
 - Flexible: admins can offer a single or multiple options for end users
 - Mirrors streaming service UX and infrastructure: pre-encoded downloadable versions of content and different quality levels
 
-#### 5.3.3. Cons
+#### 5.3.5. Cons
 
 - Difficult to scale without automated tools for admins to make use of
 - Additional complexity with library management
