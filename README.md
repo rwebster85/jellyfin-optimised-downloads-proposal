@@ -141,7 +141,7 @@ This MVP served as an immediate use-case for my own personal use and has been te
 
 Based on the research and results of the MVP and spike, **[Option A: Transcode -> Download](#option-a)** is the clear choice for friction vs value for server admins. It has less work compared to manual curation, scales better, and integrates well with the existing systems in Jellyfin.
 
-However, both options provide value for different use-cases. As such my suggestion going forward would be to implement both options together in phases. [Option A - Transcoding](#option-a) should be implemented in Phase 1, and if accepted, [Option B - Manual Curation](#option-b) in phase 2.
+However, both options provide value for different use-cases. As such my suggestion would be to implement both options together in phases. [Option A - Transcoding](#option-a) should be implemented in Phase 1, and if accepted, [Option B - Manual Curation](#option-b) in Phase 2.
 
 
 ## 6. High-Level Logical Design <a id="hld"></a>
