@@ -27,7 +27,10 @@ Provide clients with the ability to download videos from the library in lower qu
     - [5.1. ArchiMate Notation](#51-archimate-notation)
         - [5.1.1. Colour scheme](#511-colour-scheme)
         - [5.1.2. Arrow Notation](#512-arrow-notation)
-    - [5.2. Common Design](#52-common-design)
+    - [5.2. Common Designs](#52-common-designs)
+        - [5.2.1. Entry point](#521-entry-point)
+        - [5.2.2. Settings interaction](#522-settings-interaction)
+        - [5.2.3. Original file interaction](#523-original-file-interaction)
     - [5.3. Transcoding](#53-transcoding)
         - [5.3.1. Object Diagram](#531-object-diagram)
     - [5.4. Curation](#54-curation)
@@ -298,9 +301,11 @@ Notation comes from the ArchiMate 3.2 specification, provided by Open Group, ava
 
 ---
 
-### 5.2. Common Design
+### 5.2. Common Designs
 
-Both transcoding and manual curation would share the same entry point design.
+Both transcoding and manual curation would share some design elements.
+
+#### 5.2.1. Entry point
 
 ![Common entry point design](/images/hld-common-entry-point.png)
 
@@ -308,6 +313,30 @@ Both transcoding and manual curation would share the same entry point design.
 
 - "Helper" is a service named after the Jellyfin convention.
 - Clients tested are Web and Android. Others that support downloading should be assessed.
+
+<br>
+
+<p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
+
+#### 5.2.2. Settings interaction
+
+![Common settings design](/images/hld-common-settings.png)
+
+**Notes**
+
+- Helper handles user preferences, backend download options use the backend services.
+
+<br>
+
+<p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
+
+#### 5.2.3. Original file interaction
+
+![Common serving original file](/images/hld-common-original-file-served.png)
+
+**Notes**
+
+- Original file being served when selected or no applicable version available.
 
 <br>
 
