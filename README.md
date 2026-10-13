@@ -26,7 +26,7 @@ Provide clients with the ability to download videos from the library in lower qu
 - [5. High-Level Design](#5-high-level-design)
     - [5.1. Notation](#51-notation)
         - [5.1.1. Colour scheme](#511-colour-scheme)
-        - [5.1.2. Arrow style](#512-arrow-style)
+        - [5.1.2. Notation](#512-notation)
     - [5.2. Common](#52-common)
     - [5.3. Transcoding](#53-transcoding)
         - [5.3.1. Object Diagram](#531-object-diagram)
@@ -208,7 +208,7 @@ However, both options provide value for different use-cases. As such my suggesti
 Until an option to the proposed solution is agreed, what follows will be a high-level logical design focused on system and object interactions. When an option is agreed, low-level concrete designs will be produced for the implementation.
 
 ### 5.1. Notation
-ArchiMate colour and notation style ([ArchiMate](https://www.archiq.app/articles/archimate-notation), 2026), ([Open Group](https://www.opengroup.org/sites/default/files/archimate-alternative-color-set.pdf), 2023)
+ArchiMate colour and notation style. ([Style](https://www.opengroup.org/sites/default/files/archimate-alternative-color-set.pdf), [Spec](https://www.opengroup.org/sites/default/files/docs/downloads/n221p.pdf))
 
 <br>
 
@@ -230,18 +230,50 @@ ArchiMate colour and notation style ([ArchiMate](https://www.archiq.app/articles
 
 <p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
 
-#### 5.1.2. Arrow style
+#### 5.1.2. Notation
 
-| Relationship | Line | Means |
-|---|---|---|
-| Serving | Solid line, open arrowhead | The source provides something the target uses. Reads as "serves". |
-| Realization | Dotted line, hollow triangle | Something concrete fulfils something abstract. An application realizes a business service. |
-| Assignment | Solid line, ball at source | Active structure is allocated to behaviour. A role is assigned to a process. |
-| Composition | Solid line, filled diamond | Whole and part, where the part cannot exist alone. |
-| Aggregation | Solid line, hollow diamond | Whole and part, where the part can exist independently. |
-| Triggering | Solid line, filled arrowhead | Temporal sequence between behaviours. |
-| Flow | Dashed line, filled arrowhead | Transfer of information or value between behaviours. |
-| Association | Plain line | An unspecified relationship. Use sparingly — it's the one that means nothing. |
+<details>
+    <summary>See specification</summary>
+
+**Structural relationships**
+
+| Relationship | Line | Arrow | Means |
+|---|---|---|---|
+| Composition | Solid | Filled diamond at source | Represents that an element consists of one or more other concepts. |
+| Aggregation | Solid | Hollow diamond at source | Represents that an element combines one or more other concepts. |
+| Assignment | Solid | Ball at source, filled arrowhead at target | Represents the allocation of responsibility, performance of behavior, storage, or execution. |
+| Realization | Dotted | Hollow triangle | Represents that an element plays a critical role in the creation, achievement, sustenance, or operation of a more abstract element. |
+
+**Dependency relationships**
+
+| Relationship | Line | Arrow | Means |
+|---|---|---|---|
+| Serving | Solid | Open arrowhead | Represents that an element provides its functionality to another element. |
+| Access | Dotted | None, small open arrowhead, or one at both ends | Represents the ability of behavior and active structure elements to observe or act upon passive structure elements. |
+| Influence | Dashed | Open arrowhead, labelled `+/-` | Represents that an element affects the implementation or achievement of some motivation element. |
+| Association | Solid | None, or a half arrowhead when directed | Represents an unspecified relationship, or one that is not represented by another ArchiMate relationship. |
+
+**Dynamic relationships**
+
+| Relationship | Line | Arrow | Means |
+|---|---|---|---|
+| Triggering | Solid | Filled arrowhead | Represents a temporal or causal relationship between elements. |
+| Flow | Dashed | Filled arrowhead | Represents transfer from one element to another. |
+
+**Other relationships**
+
+| Relationship | Line | Arrow | Means |
+|---|---|---|---|
+| Specialization | Solid | Hollow triangle | Represents that an element is a particular kind of another element. |
+
+**Relationship connectors**
+
+| Connector | Line | Symbol | Means |
+|---|---|---|---|
+| Junction | — | Filled circle (And junction), hollow circle (Or junction) | Used to connect relationships of the same type. |
+
+</details>
+
 
 <br>
 
