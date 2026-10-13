@@ -24,7 +24,15 @@ Provide clients with the ability to download videos from the library in lower qu
         - [4.3.2. Pros & Cons](#432-pros--cons)
     - [4.4. Recommended Solution](#44-recommended-solution)
 - [5. High-Level Design](#5-high-level-design)
-        - [5.1. Example](#51-example)
+    - [5.1. Notation](#51-notation)
+        - [5.1.1. Colour scheme](#511-colour-scheme)
+        - [5.1.2. Arrow style](#512-arrow-style)
+    - [5.2. Common](#52-common)
+    - [5.3. Transcoding](#53-transcoding)
+        - [5.3.1. Object Diagram](#531-object-diagram)
+    - [5.4. Curation](#54-curation)
+        - [5.4.1. Object Diagram](#541-object-diagram)
+        - [5.4.2. Example](#542-example)
 
 <!-- /TOC -->
 
@@ -199,8 +207,78 @@ However, both options provide value for different use-cases. As such my suggesti
 
 Until an option to the proposed solution is agreed, what follows will be a high-level logical design focused on system and object interactions. When an option is agreed, low-level concrete designs will be produced for the implementation.
 
+### 5.1. Notation
+ArchiMate colour and notation style ([ArchiMate](https://www.archiq.app/articles/archimate-notation), 2026), ([Open Group](https://www.opengroup.org/sites/default/files/archimate-alternative-color-set.pdf), 2023)
 
-#### 5.1. Example
+<br>
+
+<p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
+
+#### 5.1.1. Colour scheme
+
+| Colour | Hex | Layer | Elements |
+|---|---|---|---|
+| Yellow | `#EDD779` | Business | Actor, role, collaboration, interface, process, function, interaction, event, service, business object, contract, representation, product |
+| Blue | `#B0D0D9` | Application | Component, collaboration, interface, function, interaction, process, event, service, data object |
+| Green | `#BCD9AE` | Technology and physical | Node, device, system software, collaboration, interface, path, communication network, function, process, interaction, event, service, artifact, equipment, facility, distribution network, material |
+| Orange | `#EFBD5D` | Strategy | Resource, capability, value stream, course of action |
+| Purple | `#D1BADC` | Motivation | Stakeholder, driver, assessment, goal, outcome, principle, requirement, constraint, meaning, value |
+| Rose | `#F1BBB7` | Implementation and migration | Work package, deliverable, implementation event, plateau, gap |
+| Gray | `#E5DFD3` | Composite | Grouping, location |
+
+<br>
+
+<p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
+
+#### 5.1.2. Arrow style
+
+| Relationship | Line | Means |
+|---|---|---|
+| Serving | Solid line, open arrowhead | The source provides something the target uses. Reads as "serves". |
+| Realization | Dotted line, hollow triangle | Something concrete fulfils something abstract. An application realizes a business service. |
+| Assignment | Solid line, ball at source | Active structure is allocated to behaviour. A role is assigned to a process. |
+| Composition | Solid line, filled diamond | Whole and part, where the part cannot exist alone. |
+| Aggregation | Solid line, hollow diamond | Whole and part, where the part can exist independently. |
+| Triggering | Solid line, filled arrowhead | Temporal sequence between behaviours. |
+| Flow | Dashed line, filled arrowhead | Transfer of information or value between behaviours. |
+| Association | Plain line | An unspecified relationship. Use sparingly — it's the one that means nothing. |
+
+<br>
+
+---
+
+### 5.2. Common
+
+Both transcoding and manual curation would share the same entry point design.
+
+![Common entry point design](/images/hld-common-entry-point.png)
+
+**Notes**
+
+- "Helper" is a service named after the Jellyfin convention
+- Client is targeted as Web and Android, although others that support downloading should be included
+
+<br>
+
+---
+
+### 5.3. Transcoding
+
+#### 5.3.1. Object Diagram
+
+<br>
+
+---
+
+### 5.4. Curation
+
+#### 5.4.1. Object Diagram
+
+<br>
+
+<p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
+
+#### 5.4.2. Example
 
 A movie might be located in a library like so:
 
