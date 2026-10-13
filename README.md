@@ -26,7 +26,7 @@ Provide clients with the ability to download videos from the library in lower qu
 - [5. High-Level Design](#5-high-level-design)
     - [5.1. ArchiMate Notation](#51-archimate-notation)
         - [5.1.1. Colour scheme](#511-colour-scheme)
-        - [5.1.2. Notation](#512-notation)
+        - [5.1.2. Arrow Notation](#512-arrow-notation)
     - [5.2. Common Design](#52-common-design)
     - [5.3. Transcoding](#53-transcoding)
         - [5.3.1. Object Diagram](#531-object-diagram)
@@ -211,18 +211,20 @@ Until an option to the proposed solution is agreed, what follows will be a high-
 
 The high-level design (HLD) uses the ArchiMate enterprise architecture modelling language to represent the different elements within the system and their relationships with eachother.
 
- colour and notation style. (, [Spec]())
-
 <br>
 
 <p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
 
 #### 5.1.1. Colour scheme
 
-Uses the Open Group provided *alternative* colour scheme available at https://www.opengroup.org/sites/default/files/archimate-alternative-color-set.pdf.
-
 <details>
     <summary>See colour scheme</summary>
+
+<br>
+
+Uses the Open Group provided *alternative* colour scheme available at https://www.opengroup.org/sites/default/files/archimate-alternative-color-set.pdf.
+
+<br>
 
 | Colour | Hex | Layer | Elements |
 |---|---|---|---|
@@ -240,12 +242,16 @@ Uses the Open Group provided *alternative* colour scheme available at https://ww
 
 <p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
 
-#### 5.1.2. Notation
-
-Notation comes from the ArchiMate 3.2 specification, provided by Open Group, available at https://www.opengroup.org/sites/default/files/docs/downloads/n221p.pdf
+#### 5.1.2. Arrow Notation
 
 <details>
     <summary>See specification</summary>
+
+<br>
+
+Notation comes from the ArchiMate 3.2 specification, provided by Open Group, available at https://www.opengroup.org/sites/default/files/docs/downloads/n221p.pdf
+
+<br>
 
 **Structural relationships**
 
