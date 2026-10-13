@@ -228,14 +228,13 @@ Uses the Open Group provided *alternative* colour scheme available at https://ww
 
 | Colour | Preview | Layer | Elements |
 |---|---|---|---|
-| Yellow | ![#EDD779](https://shields.io "#EDD779") | Business | Actor, role, collaboration, interface, process, function, interaction, event, service, business object, contract, representation, product |
-| Blue | ![#B0D0D9](https://shields.io "#B0D0D9") | Application | Component, collaboration, interface, function, interaction, process, event, service, data object |
-| Green | ![#BCD9AE](https://shields.io "#BCD9AE") | Technology and physical | Node, device, system software, collaboration, interface, path, communication network, function, process, interaction, event, service, artifact, equipment, facility, distribution network, material |
-| Orange | ![#EFBD5D](https://shields.io "#EFBD5D") | Strategy | Resource, capability, value stream, course of action |
-| Purple | ![#D1BADC](https://shields.io "#D1BADC") | Motivation | Stakeholder, driver, assessment, goal, outcome, principle, requirement, constraint, meaning, value |
-| Rose | ![#F1BBB7](https://shields.io "#F1BBB7") | Implementation and migration | Work package, deliverable, implementation event, plateau, gap |
-| Gray | ![#E5DFD3](https://shields.io "#E5DFD3") | Composite | Grouping, location |
-
+| Yellow | <span style="background-color:#EDD779; display:inline-block; width:50px; height:20px; border:1px solid #444; border-radius:3px; vertical-align:middle;" title="#EDD779"></span> | Business | Actor, role, collaboration, interface, process, function, interaction, event, service, business object, contract, representation, product |
+| Blue | <span style="background-color:#B0D0D9; display:inline-block; width:50px; height:20px; border:1px solid #444; border-radius:3px; vertical-align:middle;" title="#B0D0D9"></span> | Application | Component, collaboration, interface, function, interaction, process, event, service, data object |
+| Green | <span style="background-color:#BCD9AE; display:inline-block; width:50px; height:20px; border:1px solid #444; border-radius:3px; vertical-align:middle;" title="#BCD9AE"></span> | Technology and physical | Node, device, system software, collaboration, interface, path, communication network, function, process, interaction, event, service, artifact, equipment, facility, distribution network, material |
+| Orange | <span style="background-color:#EFBD5D; display:inline-block; width:50px; height:20px; border:1px solid #444; border-radius:3px; vertical-align:middle;" title="#EFBD5D"></span> | Strategy | Resource, capability, value stream, course of action |
+| Purple | <span style="background-color:#D1BADC; display:inline-block; width:50px; height:20px; border:1px solid #444; border-radius:3px; vertical-align:middle;" title="#D1BADC"></span> | Motivation | Stakeholder, driver, assessment, goal, outcome, principle, requirement, constraint, meaning, value |
+| Rose | <span style="background-color:#F1BBB7; display:inline-block; width:50px; height:20px; border:1px solid #444; border-radius:3px; vertical-align:middle;" title="#F1BBB7"></span> | Implementation and migration | Work package, deliverable, implementation event, plateau, gap |
+| Gray | <span style="background-color:#E5DFD3; display:inline-block; width:50px; height:20px; border:1px solid #444; border-radius:3px; vertical-align:middle;" title="#E5DFD3"></span> | Composite | Grouping, location |
 
 </details>
 
