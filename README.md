@@ -77,7 +77,7 @@ Client download requests use server transcoding according to download and user p
 
 <br>
 
-<hr style="width: 300px; max-width: 100%; margin-left: 0;">
+<p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
 
 #### 4.2.1. Transcoding Spike
 
@@ -93,7 +93,7 @@ The results of this work can be viewed as follows: <a href="https://github.com/r
 
 <br>
 
-<hr style="width: 300px; max-width: 100%; margin-left: 0;">
+<p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
 
 #### 4.2.2. Transcoding Results
 
@@ -123,7 +123,7 @@ Command: H.264 at 960×410, 750 kbps video, AAC stereo at 192 kbps, with the enc
 
 <br>
 
-<hr style="width: 300px; max-width: 100%; margin-left: 0;">
+<p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
 
 #### 4.2.3. Pros & Cons
 
@@ -144,7 +144,7 @@ Server admins generate/source their own lower-quality files according to their t
 
 <br>
 
-<hr style="width: 300px; max-width: 100%; margin-left: 0;">
+<p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
 
 #### 4.3.1. Manual Curation MVP
 
@@ -172,7 +172,7 @@ Dune (2021), BluRay 1080p source - same 300-second segment at 1920×804 - My re-
 
 <br>
 
-<hr style="width: 300px; max-width: 100%; margin-left: 0;">
+<p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
 
 #### 4.3.2. Pros & Cons
 
