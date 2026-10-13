@@ -27,7 +27,7 @@ Provide clients with the ability to download videos from the library in lower qu
     - [5.1. ArchiMate Notation](#51-archimate-notation)
         - [5.1.1. Colour scheme](#511-colour-scheme)
         - [5.1.2. Notation](#512-notation)
-    - [5.2. Common](#52-common)
+    - [5.2. Common Design](#52-common-design)
     - [5.3. Transcoding](#53-transcoding)
         - [5.3.1. Object Diagram](#531-object-diagram)
     - [5.4. Curation](#54-curation)
@@ -208,13 +208,18 @@ However, both options provide value for different use-cases. As such my suggesti
 Until an option to the proposed solution is agreed, what follows will be a high-level logical design focused on system and object interactions. When an option is agreed, low-level concrete designs will be produced for the implementation.
 
 ### 5.1. ArchiMate Notation
-ArchiMate colour and notation style. ([Style](https://www.opengroup.org/sites/default/files/archimate-alternative-color-set.pdf), [Spec](https://www.opengroup.org/sites/default/files/docs/downloads/n221p.pdf))
+
+The high-level design (HLD) uses the ArchiMate enterprise architecture modelling language to represent the different elements within the system and their relationships with eachother.
+
+ colour and notation style. (, [Spec]())
 
 <br>
 
 <p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
 
 #### 5.1.1. Colour scheme
+
+Uses the Open Group provided *alternative* colour scheme available at https://www.opengroup.org/sites/default/files/archimate-alternative-color-set.pdf.
 
 <details>
     <summary>See colour scheme</summary>
@@ -236,6 +241,8 @@ ArchiMate colour and notation style. ([Style](https://www.opengroup.org/sites/de
 <p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
 
 #### 5.1.2. Notation
+
+Notation comes from the ArchiMate 3.2 specification, provided by Open Group, available at https://www.opengroup.org/sites/default/files/docs/downloads/n221p.pdf
 
 <details>
     <summary>See specification</summary>
@@ -284,7 +291,7 @@ ArchiMate colour and notation style. ([Style](https://www.opengroup.org/sites/de
 
 ---
 
-### 5.2. Common
+### 5.2. Common Design
 
 Both transcoding and manual curation would share the same entry point design.
 
