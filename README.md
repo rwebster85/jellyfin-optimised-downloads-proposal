@@ -24,7 +24,7 @@ Provide clients with the ability to download videos from the library in lower qu
         - [4.3.2. Pros & Cons](#432-pros--cons)
     - [4.4. Recommended Solution](#44-recommended-solution)
 - [5. High-Level Design](#5-high-level-design)
-    - [5.1. Notation](#51-notation)
+    - [5.1. ArchiMate Notation](#51-archimate-notation)
         - [5.1.1. Colour scheme](#511-colour-scheme)
         - [5.1.2. Notation](#512-notation)
     - [5.2. Common](#52-common)
@@ -207,7 +207,7 @@ However, both options provide value for different use-cases. As such my suggesti
 
 Until an option to the proposed solution is agreed, what follows will be a high-level logical design focused on system and object interactions. When an option is agreed, low-level concrete designs will be produced for the implementation.
 
-### 5.1. Notation
+### 5.1. ArchiMate Notation
 ArchiMate colour and notation style. ([Style](https://www.opengroup.org/sites/default/files/archimate-alternative-color-set.pdf), [Spec](https://www.opengroup.org/sites/default/files/docs/downloads/n221p.pdf))
 
 <br>
