@@ -34,6 +34,8 @@ Some Jellyfin clients provide the ability to download media for offline play, bu
 
 Optimised downloading enables downloading media for offline/travel consumption but without the burden of large storage requirements. Libraries may contain high bitrate/resolution files that can't feasibly be stored in large quantities on consumer portable devices such as phones and tablets.
 
+<br>
+
 ## 2. Constraints <a id="constraints"></a>
 
 - Video files can come in a variety of container/codec configurations.
@@ -42,12 +44,16 @@ Optimised downloading enables downloading media for offline/travel consumption b
 - Transcoding/re-encoding takes time and resources.
 - Current transcoding behaviour not equipped to handle download for playback without adaptation.
 
+<br>
+
 ## 3. Considerations <a id="considerations"></a>
 
 - Multiple options for server admins could be made available and are not exclusive.
 - Options and functionality should be both simple and valuable.
 - Jellyfin provides transcoding functionality that could be adapted, reducing technical complexity.
 - Still requires significant technical investment and architectural implementation.
+
+<br>
 
 ## 4. Proposed Options <a id="options"></a>
 
@@ -61,11 +67,17 @@ What follows is an appraisal of two potential solutions. They could be implement
 - Multiple optimised download storage locations
     - Admins should be able to select multiple locations for either transcode download or for manual curation file storage.
 
+<br>
+
 ---
 
 ### 4.2. Option A: Transcoding <a id="option-a"></a>
 
 Client download requests use server transcoding according to download and user preference quality options, to generate a lower-quality, smaller filesize copy. This will be served to the client in-place of the full-size original. Optimised files are stored for future download requests and regenerated when needed.
+
+<br>
+
+<hr style="width: 300px; max-width: 100%; margin-left: 0;">
 
 #### 4.2.1. Transcoding Spike
 
@@ -81,7 +93,7 @@ The results of this work can be viewed as follows: <a href="https://github.com/r
 
 <br>
 
-<hr style="width: 25%; margin-left: 0;">
+<hr style="width: 300px; max-width: 100%; margin-left: 0;">
 
 #### 4.2.2. Transcoding Results
 
@@ -111,7 +123,7 @@ Command: H.264 at 960×410, 750 kbps video, AAC stereo at 192 kbps, with the enc
 
 <br>
 
-<hr style="width: 25%; margin-left: 0;">
+<hr style="width: 300px; max-width: 100%; margin-left: 0;">
 
 #### 4.2.3. Pros & Cons
 
@@ -122,11 +134,17 @@ Command: H.264 at 960×410, 750 kbps video, AAC stereo at 192 kbps, with the enc
 * **Con:** Unpredictable quality - Bitrate and resolution aren't obvious indicators of quality produced, and different hardware can produce different results.
 * **Con:** Unpredictable storage requirements - Storage requirements are unknown, and storage capacity is highly expensive.
 
+<br>
+
 ---
 
 ### 4.3. Option B: Manual Curation <a id="option-b"></a>
 
 Server admins generate/source their own lower-quality files according to their tastes, and store them on the server for the download system to serve. These files would live outside of the library, pointed to in settings, and their directory structure would mirror the library.
+
+<br>
+
+<hr style="width: 300px; max-width: 100%; margin-left: 0;">
 
 #### 4.3.1. Manual Curation MVP
 
@@ -154,7 +172,7 @@ Dune (2021), BluRay 1080p source - same 300-second segment at 1920×804 - My re-
 
 <br>
 
-<hr style="width: 25%; margin-left: 0;">
+<hr style="width: 300px; max-width: 100%; margin-left: 0;">
 
 #### 4.3.2. Pros & Cons
 
@@ -165,6 +183,8 @@ Dune (2021), BluRay 1080p source - same 300-second segment at 1920×804 - My re-
 * **Con:** High storage requirements - Multiple quality tiers for multiple video versions required.
 * **Con:** Not scalable - Every new video potentially requires companion optimised versions manually sourced.
 
+<br>
+
 ---
 
 ### 4.4. Recommended Solution <a id="recommendation"></a>
@@ -173,6 +193,7 @@ Based on the research and results of the MVP and spike, **[Option A: Transcode -
 
 However, both options provide value for different use-cases. As such my suggestion would be to implement both options together in phases. [Option A - Transcoding](#option-a) should be implemented in Phase 1, and if accepted, [Option B - Manual Curation](#option-b) in Phase 2.
 
+<br>
 
 ## 5. High-Level Design <a id="hld"></a>
 
