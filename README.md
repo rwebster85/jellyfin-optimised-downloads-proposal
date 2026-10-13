@@ -217,15 +217,6 @@ The high-level design (HLD) uses the ArchiMate enterprise architecture modelling
 
 #### 5.1.1. Colour scheme
 
-<details>
-    <summary>See colour scheme</summary>
-
-<br>
-
-Uses the Open Group provided *alternative* colour scheme available at https://www.opengroup.org/sites/default/files/archimate-alternative-color-set.pdf.
-
-<br>
-
 | Colour | Preview | Layer | Elements |
 |---|---|---|---|
 | Yellow | ![#EDD779](https://placehold.co "#EDD779") | Business | Actor, role, collaboration, interface, process, function, interaction, event, service, business object, contract, representation, product |
@@ -235,6 +226,17 @@ Uses the Open Group provided *alternative* colour scheme available at https://ww
 | Purple | ![#D1BADC](https://placehold.co "#D1BADC") | Motivation | Stakeholder, driver, assessment, goal, outcome, principle, requirement, constraint, meaning, value |
 | Rose | ![#F1BBB7](https://placehold.co "#F1BBB7") | Implementation and migration | Work package, deliverable, implementation event, plateau, gap |
 | Gray | ![#E5DFD3](https://placehold.co "#E5DFD3") | Composite | Grouping, location |
+
+<details>
+    <summary>See colour scheme</summary>
+
+<br>
+
+Uses the Open Group provided *alternative* colour scheme available at https://www.opengroup.org/sites/default/files/archimate-alternative-color-set.pdf.
+
+<br>
+
+
 
 
 </details>
