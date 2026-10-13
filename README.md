@@ -18,10 +18,10 @@ Provide clients with the ability to download videos from the library in lower qu
     - [4.2. Option A: Transcoding](#42-option-a-transcoding)
         - [4.2.1. Transcoding Spike](#421-transcoding-spike)
         - [4.2.2. Transcoding Results](#422-transcoding-results)
-        - [4.2.3. Transcoding Pros & Cons](#423-transcoding-pros--cons)
+        - [4.2.3. Pros & Cons](#423-pros--cons)
     - [4.3. Option B: Manual Curation](#43-option-b-manual-curation)
         - [4.3.1. Manual Curation MVP](#431-manual-curation-mvp)
-        - [4.3.2. Manual Curation Pros & Cons](#432-manual-curation-pros--cons)
+        - [4.3.2. Pros & Cons](#432-pros--cons)
     - [4.4. Recommended Solution](#44-recommended-solution)
 - [5. High-Level Design](#5-high-level-design)
         - [5.1. Example](#51-example)
@@ -79,6 +79,10 @@ The results of this work can be viewed as follows: <a href="https://github.com/r
 - Some features and UI elements may remain from the manual branch but are non-functional
 - Unlike the MVP, the spike did not cover Android, but implementation would be broadly similar.
 
+<br>
+
+<hr style="width: 25%; margin-left: 0;">
+
 #### 4.2.2. Transcoding Results
 
 Transcoding depends entirely on the hardware (or software) solution available on the server. As such, a wide variety of configurations will produce varying results, ranging from potential image quality differences to time-to-transcode delay.
@@ -107,7 +111,9 @@ Command: H.264 at 960×410, 750 kbps video, AAC stereo at 192 kbps, with the enc
 
 <br>
 
-#### 4.2.3. Transcoding Pros & Cons
+<hr style="width: 25%; margin-left: 0;">
+
+#### 4.2.3. Pros & Cons
 
 * **Pro:** Scalable - Server admin is not concerned with managing these optimised downloads.
 * **Pro:** Automated - Background processes handle generation and removal.
@@ -148,7 +154,9 @@ Dune (2021), BluRay 1080p source - same 300-second segment at 1920×804 - My re-
 
 <br>
 
-#### 4.3.2. Manual Curation Pros & Cons
+<hr style="width: 25%; margin-left: 0;">
+
+#### 4.3.2. Pros & Cons
 
 * **Pro:** Highly curated - Server admin has a hand in each file/format.
 * **Pro:** Predictable results - Files are chosen by the admin and can be checked for quality issues.
