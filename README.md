@@ -23,7 +23,7 @@ Provide clients with the ability to download videos from the library in lower qu
         - [4.3.1. Manual Curation MVP](#431-manual-curation-mvp)
         - [4.3.2. Manual Curation Pros & Cons](#432-manual-curation-pros--cons)
     - [4.4. Recommended Solution](#44-recommended-solution)
-- [5. High-Level Logical Design](#5-high-level-logical-design)
+- [5. High-Level Design](#5-high-level-design)
         - [5.1. Example](#51-example)
 
 <!-- /TOC -->
@@ -166,9 +166,9 @@ Based on the research and results of the MVP and spike, **[Option A: Transcode -
 However, both options provide value for different use-cases. As such my suggestion would be to implement both options together in phases. [Option A - Transcoding](#option-a) should be implemented in Phase 1, and if accepted, [Option B - Manual Curation](#option-b) in Phase 2.
 
 
-## 5. High-Level Logical Design <a id="hld"></a>
+## 5. High-Level Design <a id="hld"></a>
 
-Until an implementation to the proposed solution is decided, what follows will be a high-level, logical design. When an implementation is decided, low-level concrete designs will be produced.
+Until an option to the proposed solution is decided, what follows will be a high-level logical design focused on system and object interactions. When an option is decided, low-level concrete designs will be produced for the implementation.
 
 
 #### 5.1. Example
