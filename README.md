@@ -4,9 +4,9 @@
 Provide clients with the ability to download videos from the library in lower quality, smaller file sizes.
 
 <!-- TOC ignore:true -->
-#### Table of Contents <a id="toc"></a>
+**Table of Contents** <a id="toc"></a>
 
-<!-- TOC depthfrom:2 depthto:3 orderedlist:true -->
+<!-- TOC depthfrom:2 depthto:4 orderedlist:true -->
 
 - [1. Motivation](#1-motivation)
 - [2. Constraints](#2-constraints)
@@ -14,9 +14,15 @@ Provide clients with the ability to download videos from the library in lower qu
 - [4. Proposed Options](#4-proposed-options)
     - [4.1. Common concepts](#41-common-concepts)
     - [4.2. Option A: Transcoding](#42-option-a-transcoding)
-    - [4.3. Option B: Curated hand-placed files](#43-option-b-curated-hand-placed-files)
+        - [4.2.1. Transcoding Spike](#421-transcoding-spike)
+        - [4.2.2. Transcoding Results](#422-transcoding-results)
+        - [4.2.3. Transcoding Pros & Cons](#423-transcoding-pros--cons)
+    - [4.3. Option B: Manual Curation](#43-option-b-manual-curation)
+        - [4.3.1. Manual Curation MVP](#431-manual-curation-mvp)
+        - [4.3.2. Manual Curation Pros & Cons](#432-manual-curation-pros--cons)
     - [4.4. Recommended Solution](#44-recommended-solution)
 - [5. High-Level Logical Design](#5-high-level-logical-design)
+        - [5.1. Example](#51-example)
 
 <!-- /TOC -->
 
@@ -59,7 +65,7 @@ What follows is an appraisal of two potential solutions. They could be implement
 
 Client download requests use server transcoding according to download and user preference quality options, to generate a lower-quality, smaller filesize copy. This will be served to the client in-place of the full-size original. Optimised files are stored for future download requests and regenerated when needed.
 
-**Transcoding Spike**
+#### 4.2.1. Transcoding Spike
 
 A spike was carried out w/c 5th October 2026 to research feasibility, implementation, scope, and upstream impact. The work was branched off my `optimised-downloads` branch (manual curation MVP) with the manual logic removed.
 
@@ -71,7 +77,7 @@ The results of this work can be viewed as follows: <a href="https://github.com/r
 - Some features and UI elements may remain from the manual branch but are non-functional
 - Unlike the MVP, the spike did not cover Android, but implementation would be broadly similar.
 
-**Transcoding results**
+#### 4.2.2. Transcoding Results
 
 Transcoding depends entirely on the hardware (or software) solution available on the server. As such, a wide variety of configurations will produce varying results, ranging from potential image quality differences to time-to-transcode delay.
 
@@ -84,7 +90,7 @@ To establish a baseline for cost I tested encoding from two different sources on
 
 <br>
 
-**On-demand transcode download** 
+**On-demand transcode download**
 
 Source: 1920×822, 7.2 GB, 1:54:43, HEVC Main 10 SDR.
 
@@ -99,7 +105,7 @@ Command: H.264 at 960×410, 750 kbps video, AAC stereo at 192 kbps, with the enc
 
 <br>
 
-**Pros & Cons**
+#### 4.2.3. Transcoding Pros & Cons
 
 * **Pro:** Scalable - Server admin is not concerned with managing these optimised downloads.
 * **Pro:** Automated - Background processes handle generation and removal.
@@ -110,11 +116,11 @@ Command: H.264 at 960×410, 750 kbps video, AAC stereo at 192 kbps, with the enc
 
 ---
 
-### 4.3. Option B: Curated hand-placed files <a id="option-b"></a>
+### 4.3. Option B: Manual Curation <a id="option-b"></a>
 
 Server admins generate/source their own lower-quality files according to their tastes, and store them on the server for the download system to serve. These files would live outside of the library, pointed to in settings, and their directory structure would mirror the library.
 
-**Manual Curation MVP**
+#### 4.3.1. Manual Curation MVP
 
 Beginning w/c 21st September 2026, an MVP of this feature was implemented in Server as well as Web and Android clients. Some logic is heavily constrained by my own library naming conventions for filename matching and lookup, but aside from that the implementation could broadly match. See the `optimised-downloads` branches in my forks: <a href="https://github.com/rwebster85/jellyfin/tree/optimised-downloads">Server</a>, <a href="https://github.com/rwebster85/jellyfin-web/tree/optimised-downloads">Web</a>, <a href="https://github.com/rwebster85/jellyfin-android/tree/optimised-downloads">Android</a>.
 
@@ -127,7 +133,7 @@ This MVP served as an immediate use-case for my own personal use and has been te
 
 <br>
 
-**Encoder compariso**
+**Encoder comparison**
 
 Dune (2021), BluRay 1080p source - same 300-second segment at 1920×804 - My re-encoding tool, for comparison
 
@@ -140,7 +146,8 @@ Dune (2021), BluRay 1080p source - same 300-second segment at 1920×804 - My re-
 
 <br>
 
-**Pros & Cons**
+#### 4.3.2. Manual Curation Pros & Cons
+
 * **Pro:** Highly curated - Server admin has a hand in each file/format.
 * **Pro:** Predictable results - Files are chosen by the admin and can be checked for quality issues.
 * **Pro:** Tailored quality - Files can be tailored for their requirements, such as darkness, fast-moving action, or high frequency film grain.
@@ -162,7 +169,7 @@ However, both options provide value for different use-cases. As such my suggesti
 Until an implementation to the proposed solution is decided, what follows will be a high-level, logical design. When an implementation is decided, low-level concrete designs will be produced.
 
 
-#### 4.1. Example
+#### 5.1. Example
 
 A movie might be located in a library like so:
 
