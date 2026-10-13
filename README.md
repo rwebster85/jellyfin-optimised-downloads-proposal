@@ -216,6 +216,9 @@ ArchiMate colour and notation style. ([Style](https://www.opengroup.org/sites/de
 
 #### 5.1.1. Colour scheme
 
+<details>
+    <summary>See colour scheme</summary>
+
 | Colour | Hex | Layer | Elements |
 |---|---|---|---|
 | Yellow | `#EDD779` | Business | Actor, role, collaboration, interface, process, function, interaction, event, service, business object, contract, representation, product |
@@ -225,6 +228,8 @@ ArchiMate colour and notation style. ([Style](https://www.opengroup.org/sites/de
 | Purple | `#D1BADC` | Motivation | Stakeholder, driver, assessment, goal, outcome, principle, requirement, constraint, meaning, value |
 | Rose | `#F1BBB7` | Implementation and migration | Work package, deliverable, implementation event, plateau, gap |
 | Gray | `#E5DFD3` | Composite | Grouping, location |
+
+</details>
 
 <br>
 
