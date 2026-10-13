@@ -255,8 +255,8 @@ Both transcoding and manual curation would share the same entry point design.
 
 **Notes**
 
-- "Helper" is a service named after the Jellyfin convention
-- Client is targeted as Web and Android, although others that support downloading should be included
+- "Helper" is a service named after the Jellyfin convention.
+- Clients tested are Web and Android. Others that support downloading should be assessed.
 
 <br>
 
