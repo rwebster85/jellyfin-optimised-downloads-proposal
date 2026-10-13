@@ -197,7 +197,7 @@ However, both options provide value for different use-cases. As such my suggesti
 
 ## 5. High-Level Design <a id="hld"></a>
 
-Until an option to the proposed solution is decided, what follows will be a high-level logical design focused on system and object interactions. When an option is decided, low-level concrete designs will be produced for the implementation.
+Until an option to the proposed solution is agreed, what follows will be a high-level logical design focused on system and object interactions. When an option is agreed, low-level concrete designs will be produced for the implementation.
 
 
 #### 5.1. Example
