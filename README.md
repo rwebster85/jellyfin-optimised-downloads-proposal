@@ -29,8 +29,8 @@ Provide clients with the ability to download videos from the library in lower qu
         - [5.1.2. Arrow Notation](#512-arrow-notation)
     - [5.2. Common Designs](#52-common-designs)
         - [5.2.1. Service entry point](#521-service-entry-point)
-        - [5.2.2. Settings interaction](#522-settings-interaction)
-        - [5.2.3. Original file interaction](#523-original-file-interaction)
+        - [5.2.2. Downloadable file interaction](#522-downloadable-file-interaction)
+        - [5.2.3. Settings interaction](#523-settings-interaction)
         - [5.2.4. Full common design](#524-full-common-design)
     - [5.3. Transcoding](#53-transcoding)
         - [5.3.1. Object Diagram](#531-object-diagram)
@@ -323,7 +323,23 @@ Both transcoding and manual curation would share some design elements.
 
 <p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
 
-#### 5.2.2. Settings interaction
+#### 5.2.2. Downloadable file interaction
+
+<br>
+
+![Downloadable file interaction design](/images/hld-common-download.png)
+
+**Notes**
+
+- Original file being served when selected or no applicable version available.
+
+<br>
+
+<p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
+
+#### 5.2.3. Settings interaction
+
+<br>
 
 ![Common settings design](/images/hld-common-settings.png)
 
@@ -335,24 +351,14 @@ Both transcoding and manual curation would share some design elements.
 
 <p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
 
-#### 5.2.3. Original file interaction
-
-![Common serving original file](/images/hld-common-original-file-served.png)
-
-**Notes**
-
-- Original file being served when selected or no applicable version available.
-
-<br>
-
-<p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
-
 #### 5.2.4. Full common design
 
 **Note:** Some of this design corresponds with my MVP and spike, in terms of settings and configuration storage. This is subject to change following an agreement on the appraisal and implementation strategy.
 
 <details>
     <summary>See full common design</summary>
+
+<br>
 
 ![Full common design diagram](/images/hld-common-all.png)
 
