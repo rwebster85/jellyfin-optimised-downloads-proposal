@@ -274,9 +274,11 @@ Notation comes from the ArchiMate 3.2 specification, provided by Open Group, ava
 | Relationship | Line | Arrow | Means |
 |---|---|---|---|
 | Serving | Solid | Open arrowhead | Represents that an element provides its functionality to another element. |
-| Access | Dotted | None, small open arrowhead, or one at both ends | Represents the ability of behavior and active structure elements to observe or act upon passive structure elements. |
+| Access | Dotted* | None, small open arrowhead, or one at both ends | Represents the ability of behavior and active structure elements to observe or act upon passive structure elements. |
 | Influence | Dashed | Open arrowhead, labelled `+/-` | Represents that an element affects the implementation or achievement of some motivation element. |
 | Association | Solid | None, or a half arrowhead when directed | Represents an unspecified relationship, or one that is not represented by another ArchiMate relationship. |
+
+\**Dashed in diagrams*
 
 **Dynamic relationships**
 
