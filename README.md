@@ -31,6 +31,7 @@ Provide clients with the ability to download videos from the library in lower qu
         - [5.2.1. Entry point](#521-entry-point)
         - [5.2.2. Settings interaction](#522-settings-interaction)
         - [5.2.3. Original file interaction](#523-original-file-interaction)
+        - [5.2.4. Full common design](#524-full-common-design)
     - [5.3. Transcoding](#53-transcoding)
         - [5.3.1. Object Diagram](#531-object-diagram)
     - [5.4. Curation](#54-curation)
@@ -214,6 +215,8 @@ Until an option to the proposed solution is agreed, what follows will be a high-
 
 The high-level design (HLD) uses the ArchiMate enterprise architecture modelling language to represent the different elements within the system and their relationships with eachother.
 
+Diagrams were created using [Visual Paradigm Online](https://online.visual-paradigm.com/), and a quirk of the tool is *Access* arrow lines are dashed instead of dotted.
+
 <br>
 
 <p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
@@ -311,7 +314,7 @@ Both transcoding and manual curation would share some design elements.
 
 **Notes**
 
-- "Helper" is a service named after the Jellyfin convention.
+- "Helper" is a service named as per the Jellyfin convention.
 - Clients tested are Web and Android. Others that support downloading should be assessed.
 
 <br>
@@ -337,6 +340,21 @@ Both transcoding and manual curation would share some design elements.
 **Notes**
 
 - Original file being served when selected or no applicable version available.
+
+<br>
+
+<p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
+
+#### 5.2.4. Full common design
+
+**Note:** Some of this design corresponds with my MVP and spike, in terms of settings and configuration storage. This is subject to change following an agreement on the appraisal and implementation strategy.
+
+<details>
+    <summary>See full common design</summary>
+
+![Full common design diagram](/images/hld-common-all.png)
+
+</details>
 
 <br>
 
