@@ -33,7 +33,7 @@ Provide clients with the ability to download videos from the library in lower qu
         - [5.2.3. Settings interaction](#523-settings-interaction)
         - [5.2.4. Full common design](#524-full-common-design)
     - [5.3. Transcoding](#53-transcoding)
-        - [5.3.1. Object Diagram](#531-object-diagram)
+        - [5.3.1. Transcoding / Downloading process](#531-transcoding--downloading-process)
     - [5.4. Curation](#54-curation)
         - [5.4.1. Object Diagram](#541-object-diagram)
         - [5.4.2. Example](#542-example)
@@ -372,7 +372,11 @@ Both transcoding and manual curation would share some design elements.
 
 ### 5.3. Transcoding
 
-#### 5.3.1. Object Diagram
+#### 5.3.1. Transcoding / Downloading process
+
+<br>
+
+![Transcoding / Downloading process design](/images/hld-transcoding-download.png)
 
 <br>
 
