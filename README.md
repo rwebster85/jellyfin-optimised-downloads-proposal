@@ -28,7 +28,7 @@ Provide clients with the ability to download videos from the library in lower qu
         - [5.1.1. Colour scheme](#511-colour-scheme)
         - [5.1.2. Arrow Notation](#512-arrow-notation)
     - [5.2. Common Designs](#52-common-designs)
-        - [5.2.1. Entry point](#521-entry-point)
+        - [5.2.1. Service entry point](#521-service-entry-point)
         - [5.2.2. Settings interaction](#522-settings-interaction)
         - [5.2.3. Original file interaction](#523-original-file-interaction)
         - [5.2.4. Full common design](#524-full-common-design)
@@ -308,7 +308,7 @@ Notation comes from the ArchiMate 3.2 specification, provided by Open Group, ava
 
 Both transcoding and manual curation would share some design elements.
 
-#### 5.2.1. Entry point
+#### 5.2.1. Service entry point
 
 ![Common entry point design](/images/hld-common-entry-point.png)
 
