@@ -312,6 +312,8 @@ Both transcoding and manual curation would share some design elements.
 
 #### 5.2.1. Service entry point
 
+<br>
+
 ![Common entry point design](/images/hld-common-entry-point.png)
 
 **Notes**
