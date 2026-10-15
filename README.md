@@ -31,7 +31,7 @@ Provide clients with the ability to download videos from the library in lower qu
         - [5.2.3. Settings interaction](#523-settings-interaction)
         - [5.2.4. Full common design](#524-full-common-design)
     - [5.3. Transcoding](#53-transcoding)
-        - [5.3.1. Transcoding / Downloading process](#531-transcoding--downloading-process)
+        - [5.3.1. Transcode -> Download process](#531-transcode---download-process)
         - [5.3.2. Transcode Cleanup](#532-transcode-cleanup)
     - [5.4. Manual Curation](#54-manual-curation)
         - [5.4.1. Download Diagram](#541-download-diagram)
@@ -361,17 +361,49 @@ Both transcoding and manual curation would share some design elements.
 
 ### 5.3. Transcoding
 
-#### 5.3.1. Transcoding / Downloading process
+Definitions:
+
+**Stale**
+
+* A transcode file matching a video in the library that was removed/renamed/changed.
+* A transcode file that no longer matches the tier resolution and/or bitrate that created it, if the admin opts for that setting. By default, tier changes will not make stale any existing transcodes.
+
+<br>
+
+<p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
+
+#### 5.3.1. Transcode -> Download process
+
+1. User download request is captured by the controller.
+2. If a transcoded file matching the user's quality tier preference (or server default) exists, and is not stale, the file is served.
+3. Otherwise, if a transcode job isn't already running, configured against the user's quality tier preference (or server default) and the corresponding resolution and bitrate set by the admin, start a transcode job.
+4. File is streamed in packets to the client until completed.
+5. If a download request is cancelled, the transcoding job continues in the background.
+6. If a download request is initiated while the video is being transcoded, the request joins the existing job and is streamed the file from the start.
+7. If the video is removed from the library during transcode, the job is interrupted and partial file deleted.
+8. If the transcode completes successfully, it is recorded as complete. A failed transcode file would be removed.
+
+<br>
+
+<details>
+    <summary>Show system diagram</summary>
 
 <br>
 
 ![Transcoding / Downloading process design](/images/hld-transcoding-download.png)
+
+</details>
 
 <br>
 
 <p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
 
 #### 5.3.2. Transcode Cleanup
+
+1. Stale transcoded files are automatically cleaned up.
+2. The existing system triggers an event when a library video is removed/renamed/moved. These videos have their transcode counterparts deleted, and transcodes in progress are cancelled.
+3. The cleaner also runs on a schedule to remove stale and/or remnant transcodes.
+
 
 <br>
 
