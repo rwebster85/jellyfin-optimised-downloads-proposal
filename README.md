@@ -330,6 +330,8 @@ Both transcoding and manual curation would share some design elements.
 
 #### 5.2.3. Settings interaction
 
+**Note:** Some of this design corresponds with my MVP and spike, in terms of settings and configuration storage. This is subject to change following an agreement on the appraisal and implementation strategy.
+
 <br>
 
 ![Common settings design](/images/hld-common-settings.png)
@@ -343,8 +345,6 @@ Both transcoding and manual curation would share some design elements.
 <p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
 
 #### 5.2.4. Full common design
-
-**Note:** Some of this design corresponds with my MVP and spike, in terms of settings and configuration storage. This is subject to change following an agreement on the appraisal and implementation strategy.
 
 <details>
     <summary>See full common design</summary>
