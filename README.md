@@ -473,9 +473,15 @@ The unpredictability of the required storage space for as-yet-to-be transcoded f
 
 The directory structure used for storing transcoded files, inside of the admin selected root locations, should match the schema used by the Trickplay system. This is to protect against OS path length limits that may be triggered when using something else such as library, film, or video filename, or combination of all.
 
+
+```
+<location>/<first 2 chars of the version id>/<version id>/<tier id>.<ext>
+```
 Using the video Version ID GUID also solves the issue of a film/episode containing multiple video file versions.
 
-For example:
+<br>
+
+Example:
 
 ```
 /path/to/downloads/
@@ -488,7 +494,7 @@ For example:
 
 Transcoded files should have a companion side-car `.json` file, describing the encoding details and the details of the source. This is used for staleness checking, and is only created upon successful video transcode.
 
-For example:
+Example:
 
 ```
 /path/to/downloads/
