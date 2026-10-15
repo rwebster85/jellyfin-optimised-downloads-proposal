@@ -404,10 +404,16 @@ Definitions:
 2. The existing system triggers an event when a library video is removed/renamed/moved. These videos have their transcode counterparts deleted, and transcodes in progress are cancelled.
 3. The cleaner also runs on a schedule to remove stale and/or remnant transcodes.
 
+<br>
+
+<details>
+    <summary>Show system diagram</summary>
 
 <br>
 
 ![Transcoding cleanup design](/images/hld-transcoding-cleaner.png)
+
+</details>
 
 <br>
 
