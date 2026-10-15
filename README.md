@@ -138,6 +138,25 @@ Command: H.264 at 960×410, 750 kbps video, AAC stereo at 192 kbps, with the enc
 
 <br>
 
+**Serving a file while it is still being transcoded**
+
+The spike first streamed the transcode to the client as it was written. Testing showed this is unreliable.
+
+| Finding | Impact |
+|---|---|
+| `ffmpeg` writes an MKV's duration and seek index at the start of the file once encoding finishes. A client streaming the growing file has already received the placeholder. | The downloaded file reports the wrong duration and lacks its seek index. |
+| Fragmented MP4 streams intact, but ExoPlayer (used for offline playback on Android) cannot seek it without a `sidx` index, which ffmpeg can only write once encoding finishes. | No container is both streaming-safe and seekable on every client. MP4 would also rule out image-based subtitles. |
+| If a transcode fails, or is stopped because its video was removed from the library, the response simply ends. | The client keeps a partial file with no indication it failed. |
+| A growing file has no known size and cannot serve byte ranges. | No download progress percentage, and an interrupted download restarts from the beginning. |
+| A file that does not exist yet cannot be described (MediaInfo). | Clients that store a description of the download for offline playback cannot get one in advance. |
+| The client can only receive what has been encoded so far. | Download speed is capped by encoding speed. |
+
+<br>
+
+**Conclusion:** Files should be transcoded in full before they are served (see [5.3.1](#transcode-download)). The cost is that the first download of a video at a tier waits for the transcode: about 1.5 to 3 minutes per film on the hardware above.
+
+<br>
+
 <p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
 
 #### 4.2.3. Pros & Cons
@@ -376,7 +395,7 @@ Definitions:
 
 <p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
 
-#### 5.3.1. Transcode -> Download process
+#### 5.3.1. Transcode -> Download process <a id="transcode-download"></a>
 
 1. Download locations are configured by the admin in settings, or the server default location used.
 2. User download request is captured by the controller.
@@ -443,7 +462,7 @@ Definitions:
 
 <br>
 
-## 6. Implementation <a id="imp"></a>
+## 6. Implementation
 
 The following implementation details only reflect what is necessary for appraisal of the options in this proposal. As with the HLD, once an option has been agreed, additional concrete implementation details will be provided.
 
@@ -451,13 +470,13 @@ The following implementation details only reflect what is necessary for appraisa
 
 **Download API**
 
-Clients will need to be updated to enable the new *Prepare then Download* workflow. Updated clients would append an additional query parameter to the download request such as `optimised=true`, informing the server the client supports the new process. Without the new query parameter, the original file will be served unchanged, in line with current behaviour. If a transcode file is in process but not ready, the server will respond as such.
+Clients will need to be updated to enable the new *Prepare then Download* workflow. Updated clients would append an additional query parameter to the download request such as `optimised=true`, informing the server the client supports the new process. Prepare returns a response immediately and is polled, because holding a download request open until the transcode finishes would exceed reverse-proxy and browser timeouts.
+
+Without the new query parameter, the original file will be served unchanged, in line with current behaviour. If the optimised video file is not yet ready (does not exist, or isn't transcoded yet), the server will respond as such.
 
 All requests could go through the existing API (`Items/{itemId}/Download`), or a new `Items/{itemId}/Download/Optimised` route using a secondary link. In the latter, the original Download button would simply serve the original file. This proposal suggests the former, which would be the better option from a UX perspective.
 
-**Clients**
-
-
+---
 
 ### 6.2. Transcoding
 
@@ -504,9 +523,9 @@ Example:
         └── 8d3a6f1e7c4b4a2d9e5f1b0c2d3e4f50.json       <- "finished" record for that transcode
 ```
 
-**Download Process**
-
 <br>
+
+---
 
 ### 6.3. Manual Curation
 
