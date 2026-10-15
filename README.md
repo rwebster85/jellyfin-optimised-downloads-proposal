@@ -25,8 +25,6 @@ Provide clients with the ability to download videos from the library in lower qu
     - [4.4. Recommended Solution](#44-recommended-solution)
 - [5. High-Level Design](#5-high-level-design)
     - [5.1. ArchiMate Notation](#51-archimate-notation)
-        - [5.1.1. Colour scheme](#511-colour-scheme)
-        - [5.1.2. Arrow Notation](#512-arrow-notation)
     - [5.2. Common Designs](#52-common-designs)
         - [5.2.1. Service entry point](#521-service-entry-point)
         - [5.2.2. Downloadable file interaction](#522-downloadable-file-interaction)
@@ -34,8 +32,9 @@ Provide clients with the ability to download videos from the library in lower qu
         - [5.2.4. Full common design](#524-full-common-design)
     - [5.3. Transcoding](#53-transcoding)
         - [5.3.1. Transcoding / Downloading process](#531-transcoding--downloading-process)
-    - [5.4. Curation](#54-curation)
-        - [5.4.1. Object Diagram](#541-object-diagram)
+        - [5.3.2. Transcode Cleanup](#532-transcode-cleanup)
+    - [5.4. Manual Curation](#54-manual-curation)
+        - [5.4.1. Download Diagram](#541-download-diagram)
         - [5.4.2. Example](#542-example)
 
 <!-- /TOC -->
@@ -217,14 +216,8 @@ The high-level design (HLD) uses the ArchiMate enterprise architecture modelling
 
 Diagrams were created using [Visual Paradigm Online](https://online.visual-paradigm.com/), and a quirk of the tool is *Access* arrow lines are dashed instead of dotted.
 
-<br>
-
-<p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
-
-#### 5.1.1. Colour scheme
-
 <details>
-    <summary>See colour scheme</summary>
+    <summary>Show colour scheme & notation guide</summary>
 
 <br>
 
@@ -242,18 +235,6 @@ Uses the Open Group provided *alternative* colour scheme available at https://ww
 | Rose | `#F1BBB7` | Implementation and migration | Work package, deliverable, implementation event, plateau, gap |
 | Gray | `#E5DFD3` | Composite | Grouping, location |
 
-
-</details>
-
-<br>
-
-<p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
-
-#### 5.1.2. Arrow Notation
-
-<details>
-    <summary>See specification</summary>
-
 <br>
 
 Notation comes from the ArchiMate 3.2 specification, provided by Open Group, available at https://www.opengroup.org/sites/default/files/docs/downloads/n221p.pdf
@@ -269,6 +250,8 @@ Notation comes from the ArchiMate 3.2 specification, provided by Open Group, ava
 | Assignment | Solid | Ball at source, filled arrowhead at target | Represents the allocation of responsibility, performance of behavior, storage, or execution. |
 | Realization | Dotted | Hollow triangle | Represents that an element plays a critical role in the creation, achievement, sustenance, or operation of a more abstract element. |
 
+<br>
+
 **Dependency relationships**
 
 | Relationship | Line | Arrow | Means |
@@ -280,6 +263,8 @@ Notation comes from the ArchiMate 3.2 specification, provided by Open Group, ava
 
 \**Dashed in diagrams*
 
+<br>
+
 **Dynamic relationships**
 
 | Relationship | Line | Arrow | Means |
@@ -287,11 +272,15 @@ Notation comes from the ArchiMate 3.2 specification, provided by Open Group, ava
 | Triggering | Solid | Filled arrowhead | Represents a temporal or causal relationship between elements. |
 | Flow | Dashed | Filled arrowhead | Represents transfer from one element to another. |
 
+<br>
+
 **Other relationships**
 
 | Relationship | Line | Arrow | Means |
 |---|---|---|---|
 | Specialization | Solid | Hollow triangle | Represents that an element is a particular kind of another element. |
+
+<br>
 
 **Relationship connectors**
 
@@ -380,11 +369,27 @@ Both transcoding and manual curation would share some design elements.
 
 <br>
 
+<p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
+
+#### 5.3.2. Transcode Cleanup
+
+<br>
+
+![Transcoding cleanup design](/images/hld-transcoding-cleaner.png)
+
+<br>
+
 ---
 
-### 5.4. Curation
+### 5.4. Manual Curation
 
-#### 5.4.1. Object Diagram
+#### 5.4.1. Download Diagram
+
+<br>
+
+![Manual curation download design](/images/hld-manual-download.png)
+
+<br>
 
 <br>
 
