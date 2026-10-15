@@ -34,8 +34,12 @@ Provide clients with the ability to download videos from the library in lower qu
         - [5.3.1. Transcode -> Download process](#531-transcode---download-process)
         - [5.3.2. Transcode Cleanup](#532-transcode-cleanup)
     - [5.4. Manual Curation](#54-manual-curation)
-        - [5.4.1. Download Diagram](#541-download-diagram)
-        - [5.4.2. Example](#542-example)
+- [6. Implementation](#6-implementation)
+    - [6.1. Common](#61-common)
+    - [6.2. Transcoding](#62-transcoding)
+        - [6.2.1. Directory Structure](#621-directory-structure)
+    - [6.3. Manual Curation](#63-manual-curation)
+        - [6.3.1. Directory Structure](#631-directory-structure)
 
 <!-- /TOC -->
 
@@ -374,14 +378,15 @@ Definitions:
 
 #### 5.3.1. Transcode -> Download process
 
-1. User download request is captured by the controller.
-2. If a transcoded file matching the user's quality tier preference (or server default) exists, and is not stale, the file is served.
-3. Otherwise, if a transcode job isn't already running, configured against the user's quality tier preference (or server default) and the corresponding resolution and bitrate set by the admin, start a transcode job.
-4. File is streamed in packets to the client until completed.
-5. If a download request is cancelled, the transcoding job continues in the background.
-6. If a download request is initiated while the video is being transcoded, the request joins the existing job and is streamed the file from the start.
-7. If the video is removed from the library during transcode, the job is interrupted and partial file deleted.
-8. If the transcode completes successfully, it is recorded as complete. A failed transcode file would be removed.
+1. Download locations are configured by the admin in settings, or the server default location used.
+2. User download request is captured by the controller.
+3. If a transcoded file matching the user's quality tier preference (or server default) exists, and is not stale, the file is served.
+4. Otherwise, if a transcode job isn't already running, configured against the user's quality tier preference (or server default) and the corresponding resolution and bitrate set by the admin, start a transcode job.
+5. File is streamed in packets to the client until completed.
+6. If a download request is cancelled, the transcoding job continues in the background.
+7. If a download request is initiated while the video is being transcoded, the request joins the existing job and is streamed the file from the start.
+8. If the video is removed from the library during transcode, the job is interrupted and partial file deleted.
+9. If the transcode completes successfully, it is recorded as complete. A failed transcode file would be removed.
 
 <br>
 
@@ -421,21 +426,89 @@ Definitions:
 
 ### 5.4. Manual Curation
 
-#### 5.4.1. Download Diagram
+1. Download versions of videos are placed on the server by the admin.
+2. Download locations are configured by the admin in settings.
+3. Download requests are captured by the controler.
+4. If an optimised video is found matching the user's quality tier preference (or server default), that video is served.
+5. If no optimised video is found, the original file will be served instead.
+
+<details>
+    <summary>Show system diagram</summary>
 
 <br>
 
 ![Manual curation download design](/images/hld-manual-download.png)
 
-<br>
+</details>
 
 <br>
 
-<p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
+## 6. Implementation  <a id="implementation"></a>
 
-#### 5.4.2. Example
+The following implementation details only reflect what is necessary for appraisal of the options in this proposal. As with the HLD, once an option has been agreed, additional concrete implementation details will be provided.
 
-A movie might be located in a library like so:
+### 6.1. Common
+
+**Download API**
+
+The admin could be provided with the option of having all requests go through the existing API (`Items/{itemId}/Download`), or having "Optimised Downloads" use a secondary API/link. This proposal suggests the former, which matches the `Substitute` download type in my forks. This would mean a smaller upstream impact to existing Jellyfin clients, and would be the better option from a UX perspective.
+
+**Clients**
+
+
+
+### 6.2. Transcoding
+
+#### 6.2.1. Directory Structure
+
+**Transcode Locations**
+
+The admin should have the ability to select multiple storage locations for transcoded files. The UI would re-use the folder picker used by the Library editor. The first location is primary, second is secondary etc. We would need to enable a remaining storage limit amount for each location, which when met would then store files in the second location, then the third etc.
+
+The unpredictability of the required storage space for as-yet-to-be transcoded files means the system must enable resiliancy in the event one storage location may be at capacity.
+
+**Directory Structure**
+
+The directory structure used for storing transcoded files, inside of the admin selected root locations, should match the schema used by the Trickplay system. This is to protext against OS path length limits that may be triggered when using something else such as library, film, or video filename, or combination of all.
+
+Using the video Version ID GUID also solves the issue of a film/episode containing multiple video file versions.
+
+For example:
+
+```
+/path/to/downloads/
+└── a1/
+    └── a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d/           <- one video (one version of a film)
+        ├── 8d3a6f1e7c4b4a2d9e5f1b0c2d3e4f50.mkv        <- its transcode at one tier
+```
+
+<br>
+
+Transcoded files should have a companion side-car `.json` file, describing it's encoded details. This is used for staleness checking, and is only created upon successful video transcode.
+
+For example:
+
+```
+/path/to/downloads/
+└── a1/
+    └── a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d/           <- one video (one version of a film)
+        ├── 8d3a6f1e7c4b4a2d9e5f1b0c2d3e4f50.mkv        <- its transcode at one tier
+        └── 8d3a6f1e7c4b4a2d9e5f1b0c2d3e4f50.json       <- "finished" record for that transcode
+```
+
+<br>
+
+### 6.3. Manual Curation
+
+#### 6.3.1. Directory Structure
+
+**Video Locations**
+
+The admin should have the ability to select multiple storage locations for optimised files. The UI would re-use the folder picker used by the Library editor. The first location is primary, second is secondary etc.
+
+The folder layout would mirror the library, and the download lookup would perform a file system search to locate an optimised video. Tier names the admin sets in the dashboard would be appended to the video filename. However, if no files are found matching the user's preferred tier (or server default), but there is a single video file found, that one would be served.
+
+For example, a movie might be located in a library like so:
 
 ```
 /Path/To/Movies
@@ -451,13 +524,12 @@ Within that directory:
 
 ```
 Film (1986)
-└── Film (1986).mkv <-- 720p file
+└── Film (1986).mkv <-- optimised file
 ```
 
-With Optimised Downloads enabled in the server dashboard, a download folder location set to 
-`/Path/To/Downloads/Movies`, and a folder/file named for the film like the above example, when the user triggers a download, they would be served the 720p file.
+A download request for that movie would discover the optimised file, and serve that one.
 
-Additional options provided to server admins to create quality tiers. For example, a High (1080p) and a Standard (720p). Users can set their preferred tier in their own preferences. Downloads should be appended with the tier name. For example:
+If the admin includes tier-appended files, the tier matching the preference would be served.
 
 ```
 /Path/To/Downloads/Movies
@@ -465,8 +537,3 @@ Additional options provided to server admins to create quality tiers. For exampl
     ├── Film (1986) - High.mkv
     └── Film (1986) - Standard.mkv
 ```
-
-Users would be served the quality tier matching their preference.
-
-Potential for a fallback, if quality tiers are enabled but only one download file is present, user is served that download.
-
