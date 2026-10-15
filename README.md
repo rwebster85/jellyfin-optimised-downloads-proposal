@@ -382,9 +382,9 @@ Definitions:
 2. User download request is captured by the controller.
 3. If a transcoded file matching the user's quality tier preference (or server default) exists, and is not stale, the file is served.
 4. Otherwise, if a transcode job isn't already running, configured against the user's quality tier preference (or server default) and the corresponding resolution and bitrate set by the admin, start a transcode job.
-5. File is streamed in packets to the client until completed.
+5. Client shows the download file is being prepared in the UI. File transcoded to disk first then served.
 6. If a download request is cancelled, the transcoding job continues in the background.
-7. If a download request is initiated while the video is being transcoded, the request joins the existing job and is streamed the file from the start.
+7. If a download request is initiated while the video is being transcoded, the request joins the existing job and is served the file when the job completes.
 8. If the video is removed from the library during transcode, the job is interrupted and partial file deleted.
 9. If the transcode completes successfully, it is recorded as complete. A failed transcode file would be removed.
 
@@ -428,7 +428,7 @@ Definitions:
 
 1. Download versions of videos are placed on the server by the admin.
 2. Download locations are configured by the admin in settings.
-3. Download requests are captured by the controler.
+3. Download requests are captured by the controller.
 4. If an optimised video is found matching the user's quality tier preference (or server default), that video is served.
 5. If no optimised video is found, the original file will be served instead.
 
@@ -451,7 +451,9 @@ The following implementation details only reflect what is necessary for appraisa
 
 **Download API**
 
-The admin could be provided with the option of having all requests go through the existing API (`Items/{itemId}/Download`), or having "Optimised Downloads" use a secondary API/link. This proposal suggests the former, which matches the `Substitute` download type in my forks. This would mean a smaller upstream impact to existing Jellyfin clients, and would be the better option from a UX perspective.
+Clients will need to be updated to enable the new Prepare then Download workflow. Updated clients would append an additional query parameter to the download request such as `optimised=true`, informing the server the client supports the new prepare -> download workflow. Without the new query parameter, the original file will be served unchanged, in line with current behaviour. If a transcode file is in process but not ready, the server will respond as such.
+
+All requests could go through the existing API (`Items/{itemId}/Download`), or a new `Items/{itemId}/Download/Optimised` route using a secondary link. In the latter, the original Download button would simply serve the original file. This proposal suggests the former, which would be the better option from a UX perspective.
 
 **Clients**
 
@@ -465,11 +467,11 @@ The admin could be provided with the option of having all requests go through th
 
 The admin should have the ability to select multiple storage locations for transcoded files. The UI would re-use the folder picker used by the Library editor. The first location is primary, second is secondary etc. We would need to enable a remaining storage limit amount for each location, which when met would then store files in the second location, then the third etc.
 
-The unpredictability of the required storage space for as-yet-to-be transcoded files means the system must enable resiliancy in the event one storage location may be at capacity.
+The unpredictability of the required storage space for as-yet-to-be transcoded files means the system must enable resilience in the event one storage location may be at capacity.
 
 **Directory Structure**
 
-The directory structure used for storing transcoded files, inside of the admin selected root locations, should match the schema used by the Trickplay system. This is to protext against OS path length limits that may be triggered when using something else such as library, film, or video filename, or combination of all.
+The directory structure used for storing transcoded files, inside of the admin selected root locations, should match the schema used by the Trickplay system. This is to protect against OS path length limits that may be triggered when using something else such as library, film, or video filename, or combination of all.
 
 Using the video Version ID GUID also solves the issue of a film/episode containing multiple video file versions.
 
@@ -484,7 +486,7 @@ For example:
 
 <br>
 
-Transcoded files should have a companion side-car `.json` file, describing it's encoded details. This is used for staleness checking, and is only created upon successful video transcode.
+Transcoded files should have a companion side-car `.json` file, describing the encoding details and the details of the source. This is used for staleness checking, and is only created upon successful video transcode.
 
 For example:
 
@@ -496,6 +498,8 @@ For example:
         └── 8d3a6f1e7c4b4a2d9e5f1b0c2d3e4f50.json       <- "finished" record for that transcode
 ```
 
+**Download Process**
+
 <br>
 
 ### 6.3. Manual Curation
@@ -506,7 +510,7 @@ For example:
 
 The admin should have the ability to select multiple storage locations for optimised files. The UI would re-use the folder picker used by the Library editor. The first location is primary, second is secondary etc.
 
-The folder layout would mirror the library, and the download lookup would perform a file system search to locate an optimised video. Tier names the admin sets in the dashboard would be appended to the video filename. However, if no files are found matching the user's preferred tier (or server default), but there is a single video file found, that one would be served.
+The folder layout would mirror the source folder structure, and the download lookup would perform a file system search to locate an optimised video. The Tier suffix the admin sets in the dashboard would be appended to the video filename. However, if no files are found matching the user's preferred tier (or server default), but there is a single video file found, that one would be served. If tiered videos are found, but not matching the user's preference, they would be served the next available per the ordering.
 
 For example, a movie might be located in a library like so:
 
