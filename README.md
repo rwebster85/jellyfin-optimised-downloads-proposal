@@ -443,7 +443,7 @@ Definitions:
 
 <br>
 
-## 6. Implementation  <a id="implementation"></a>
+## 6. Implementation <a id="imp"></a>
 
 The following implementation details only reflect what is necessary for appraisal of the options in this proposal. As with the HLD, once an option has been agreed, additional concrete implementation details will be provided.
 
@@ -451,7 +451,7 @@ The following implementation details only reflect what is necessary for appraisa
 
 **Download API**
 
-Clients will need to be updated to enable the new Prepare then Download workflow. Updated clients would append an additional query parameter to the download request such as `optimised=true`, informing the server the client supports the new prepare -> download workflow. Without the new query parameter, the original file will be served unchanged, in line with current behaviour. If a transcode file is in process but not ready, the server will respond as such.
+Clients will need to be updated to enable the new *Prepare then Download* workflow. Updated clients would append an additional query parameter to the download request such as `optimised=true`, informing the server the client supports the new process. Without the new query parameter, the original file will be served unchanged, in line with current behaviour. If a transcode file is in process but not ready, the server will respond as such.
 
 All requests could go through the existing API (`Items/{itemId}/Download`), or a new `Items/{itemId}/Download/Optimised` route using a secondary link. In the latter, the original Download button would simply serve the original file. This proposal suggests the former, which would be the better option from a UX perspective.
 
