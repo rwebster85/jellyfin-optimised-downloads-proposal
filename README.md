@@ -76,7 +76,7 @@ What follows is an appraisal of two potential solutions. They could be implement
 
 ### 4.1. Common concepts <a id="common"></a>
 
-- Simplified end-user epxerience
+- Simplified end-user experience
 - Multiple Quality Tiers
     - Should include options for the server admin to set quality tiers with names (e.g. "High", "Standard") and resolution (1080p, 720p) for better end user UX. [Option A](#option-a) should also include bitrate targets (3Mbps, 800Kbps) for transcoding.
 - Multiple optimised download storage locations
@@ -104,7 +104,6 @@ The results of this work can be viewed as follows: <a href="https://github.com/r
 
 - Encoding is fixed at `mkv h264 1280x720 750k aac 2ch 192k`. See `DownloadTranscoder.cs` <a href="https://github.com/rwebster85/jellyfin/blob/d748fc95051c1d2eac464ac665d5dfafe462f450/Jellyfin.Api/Helpers/DownloadTranscoder.cs#L56">line 56</a> and <a href="https://github.com/rwebster85/jellyfin/blob/d748fc95051c1d2eac464ac665d5dfafe462f450/Jellyfin.Api/Helpers/DownloadTranscoder.cs#L249">line 249</a>
 - Some features and UI elements may remain from the manual branch but are non-functional
-- Unlike the MVP, the spike did not cover Android, but implementation would be broadly similar.
 
 <br>
 
@@ -174,7 +173,7 @@ The spike first streamed the transcode to the client as it was written. Testing 
 
 ### 4.3. Option B: Manual Curation <a id="option-b"></a>
 
-Server admins generate/source their own lower-quality files according to their tastes, and store them on the server for the download system to serve. These files would live outside of the library, pointed to in settings, and their directory structure would mirror the library.
+Server admins generate/source their own lower-quality files according to their tastes, and store them on the server for the download system to serve. These files would live outside of the library, pointed to in settings, and their directory structure would mirror the source folder structure.
 
 <br>
 
@@ -188,8 +187,8 @@ This MVP served as an immediate use-case for my own personal use and has been te
 
 **Testing Notes**
 
-- Client devices tested incldue a Samsung Galaxy S23 and a Lenovo Y700 Gen 3 (Legion) tablet
-- My own use-case preferred the `Substitute` download link option, rather than `SeparateAction`. See <a href="https://github.com/rwebster85/jellyfin/blob/transcode-downloads/MediaBrowser.Model/Configuration/DownloadBehaviour.cs">DownloaderBehaviour.cs</a>
+- Client devices tested include a Samsung Galaxy S23 and a Lenovo Y700 Gen 3 (Legion) tablet
+- My own use-case preferred the `Substitute` download link option, rather than `SeparateAction`. See <a href="https://github.com/rwebster85/jellyfin/blob/transcode-downloads/MediaBrowser.Model/Configuration/DownloadBehaviour.cs">DownloadBehaviour.cs</a>
 
 <br>
 
@@ -535,7 +534,7 @@ Example:
 
 The admin should have the ability to select multiple storage locations for optimised files. The UI would re-use the folder picker used by the Library editor. The first location is primary, second is secondary etc.
 
-The folder layout would mirror the source folder structure, and the download lookup would perform a file system search to locate an optimised video. The Tier suffix the admin sets in the dashboard would be appended to the video filename. However, if no files are found matching the user's preferred tier (or server default), but there is a single video file found, that one would be served. If tiered videos are found, but not matching the user's preference, they would be served the next available per the ordering.
+The folder layout would mirror the source folder structure, and the download lookup would perform a file system search to locate an optimised video. The Tier suffix the admin sets in the dashboard would be appended to the video filename. If tiered videos are found, but not matching the user's preference (or server default), they would be served the next available per the ordering. If no files are found matching the user's preferred tier (or server default), but there is a single video file found, that one would be served.
 
 For example, a movie might be located in a library like so:
 
