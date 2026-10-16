@@ -405,7 +405,7 @@ Definitions:
 4. Otherwise, if a transcode job isn't already running, configured against the user's quality tier preference (or server default) and the corresponding resolution and bitrate set by the admin, start a transcode job.
 5. Client shows the download file is being prepared in the UI. File transcoded to disk first then served.
 6. If a download request is cancelled, the transcoding job continues in the background.
-7. If a download request is initiated while the video is being transcoded, the request joins the existing job and is served the file when the job completes.
+7. If a download request is initiated while the video is being transcoded, the request joins the existing job rather than triggering a new one.
 8. If the video is removed from the library during transcode, the job is interrupted and partial file deleted.
 9. If the transcode completes successfully, it is recorded as complete. A failed transcode file would be removed.
 
@@ -574,7 +574,7 @@ Example:
 
 #### 6.3.1. Download API
 
-All requests could go through the Download API (`GET Items/{itemId}/Download?optimised=true`) - which matches the `Substitute` download link option in my MVP (see <a href="https://github.com/rwebster85/jellyfin/blob/transcode-downloads/MediaBrowser.Model/Configuration/DownloadBehaviour.cs">DownloadBehaviour.cs</a>), or a new `Items/{itemId}/Download/Optimised` route using a secondary link. In the latter, the original Download button would simply serve the original file. This proposal suggests the former, which would be the better option from a UX perspective.
+All requests could go through the Download API (`GET Items/{itemId}/Download?optimised=true`) - the equivalent of the `Substitute` option in my MVP for updated clients (see <a href="https://github.com/rwebster85/jellyfin/blob/transcode-downloads/MediaBrowser.Model/Configuration/DownloadBehaviour.cs">DownloadBehaviour.cs</a>), or a new `Items/{itemId}/Download/Optimised` route using a secondary link. In the latter, the original Download button would simply serve the original file. This proposal suggests the former, which would be the better option from a UX perspective.
 
 The file returned will match the user's quality tier preference (or server default), or if no optimised file exists for the item, the original is served.
 
