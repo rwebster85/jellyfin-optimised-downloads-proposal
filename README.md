@@ -118,27 +118,40 @@ The results of this work can be viewed as follows: <a href="https://github.com/r
 
 Transcoding depends entirely on the hardware (or software) solution available on the server. As such, a wide variety of configurations will produce varying results, ranging from potential image quality differences to time-to-transcode delay.
 
-To establish a baseline for cost I tested encoding from two different sources on two different machines. One machine used a Windows 11 machine RTX 5090 with NVENC encoding, the other used a Linux Mint system with an i5-12600 and Intel Quicksync hardware transcoding. Both runs used `ffmpeg` commands as per what Jellyfin would generate with baseline settings.
+To establish a baseline for cost I tested encoding from two different sources on two different machines. One was a Windows 11 desktop with an RTX 5090 (NVENC), the other a Linux Mint server with an i5-12600 (Intel QuickSync). Both used the `ffmpeg` commands Jellyfin generated on each machine with baseline settings.
 
 *Results Notes*
 
-- Both encoders were idle besides the running task, so real-world result will vary.
+- Both machines were idle besides the running task, so results will vary on a busy server.
+- Each figure is the average of 2 full-film runs.
 - Jellyfin caps resolution to gates based on bitrate. This was not adjusted in the spike, but implementation should override that behaviour.
 
 <br>
 
 **On-demand transcode download**
 
-Source: 1920×822, 7.2 GB, 1:54:43, HEVC Main 10 SDR.
+**Sources:**
+* I, Robot (2004) 1080p HEVC Main 10 SDR, 7.2 GB, 1:54:43
+* Dune (2021) 4K HEVC DV 8.1 (HDR10 base), 32.6 GB, 2:35:27
 
-Command: H.264 at 960×410, 750 kbps video, AAC stereo at 192 kbps, with the encoder preset on `auto`.
+<br>
+
+**Command:** H.264 750 kbps, AAC stereo 192k, preset auto.
+
+<br>
 
 | | RTX 5090, NVENC (desktop) | i5-12600, QuickSync (server) |
 |---|---|---|
+| **I, Robot (2004)** - to 960×410 | | |
 | Decode / scale / encode | CUDA / `scale_cuda` / `h264_nvenc -preset p1` | VAAPI / `scale_vaapi` / `h264_qsv -preset veryfast` |
-| Speed | **80x** (1,922 fps, average of 2 runs) | **42.9x** (1,030 fps) |
+| Speed | **80x** (1,922 fps) | **42.9x** (1,030 fps) |
 | Time for the whole film | **1 min 26 s** | **2 min 40 s** |
-| Output | 771 MiB, 939.5 kbps | 773 MiB, 941.6 kbps |
+| Output | 771 MiB, 939.5 kbps | 775 MiB, 944.4 kbps |
+| **Dune (2021)** - to 960×400 tone-mapped | | |
+| Decode / scale / tone-map / encode | CUDA / `scale_cuda` / `tonemap_cuda` (bt2390) / `h264_nvenc -preset p1` | VAAPI / `scale_vaapi` / `tonemap_vaapi` (VPP) / `h264_qsv -preset veryfast` |
+| Speed | **32.7x** (783 fps) | **16.5x** (394 fps) |
+| Time for the whole film | **4 min 46 s** | **9 min 28 s** |
+| Output | 1,042 MiB, 937.6 kbps | 1,040 MiB, 935.6 kbps |
 
 <br>
 
@@ -157,7 +170,7 @@ The spike first streamed the transcode to the client as it was written. Testing 
 
 <br>
 
-**Conclusion:** Files should be transcoded in full before they are served (see [5.3.1](#transcode-download)). The cost is that the first download of a video at a tier waits for the transcode: about 1.5 to 3 minutes per film on the hardware above.
+**Conclusion:** Files should be transcoded in full before they are served (see [5.3.1](#transcode-download)). The cost is that the first download of a video at a tier waits for the transcode: 1.5 to 3 minutes for a 1080p film, and 5 to 10 minutes for a 4K HDR one, on the hardware above.
 
 <br>
 
