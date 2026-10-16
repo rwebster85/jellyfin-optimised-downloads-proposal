@@ -22,7 +22,9 @@ Provide clients with the ability to download videos from the library in lower qu
     - [4.3. Option B: Manual Curation](#43-option-b-manual-curation)
         - [4.3.1. Manual Curation MVP](#431-manual-curation-mvp)
         - [4.3.2. Pros & Cons](#432-pros--cons)
-    - [4.4. Recommended Solution](#44-recommended-solution)
+    - [4.4. Option C: Do Nothing](#44-option-c-do-nothing)
+        - [4.4.1. Pros & Cons](#441-pros--cons)
+    - [4.5. Recommended Solution](#45-recommended-solution)
 - [5. High-Level Design](#5-high-level-design)
     - [5.1. ArchiMate Notation](#51-archimate-notation)
     - [5.2. Common Designs](#52-common-designs)
@@ -75,7 +77,7 @@ Optimised downloading enables downloading media for offline/travel consumption b
 
 ## 4. Proposed Options <a id="options"></a>
 
-What follows is an appraisal of two potential solutions. They could be implemented alongside eachother, or only one of them selected. Conceptually they both share these core concepts:
+What follows is an appraisal of three potential solutions. The two change options could be implemented alongside eachother, or only one of them selected. Conceptually they both share these core concepts:
 
 ### 4.1. Common concepts <a id="common"></a>
 
@@ -223,11 +225,34 @@ Dune (2021), BluRay 1080p source - same 300-second segment at 1920×804 - My re-
 
 ---
 
-### 4.4. Recommended Solution <a id="recommendation"></a>
+### 4.4. Option C: Do Nothing <a id="option-c"></a>
 
-Based on the research and results of the MVP and spike, **[Option A: Transcode -> Download](#option-a)** is the clear choice for friction vs value for server admins. It has less work compared to manual curation, scales better, and integrates well with the existing systems in Jellyfin.
+Change nothing about the existing system and rely on server admins to make use of the existing `version` behaviour by supplying lower-quality, smaller videos alongside the existing library ones. Users have the option of downloading whichever version they want, but must be mindful of the file sizes (shown in the Media Info page of the item's menu).
 
-However, both options provide value for different use-cases. As such my suggestion would be to implement both options together in phases. [Option A - Transcoding](#option-a) should be implemented in Phase 1, and if accepted, [Option B - Manual Curation](#option-b) in Phase 2.
+<br>
+
+<p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
+
+#### 4.4.1. Pros & Cons
+
+* **Pro:** No new code changes needed to review, or for maintainers to own.
+* **Pro:** No server transcoding load, and no storage beyond what the admin chooses to add.
+* **Pro:** Reuses existing Jellyfin feature set.
+* **Con:** Relies on users selecting the lower quality version, which isn't always obvious in the UI.
+* **Con:** A small version is a full playback version too, so it shows in every user's version picker when streaming.
+* **Con:** Does not address the existing feature requests for smaller downloads.
+
+<br>
+
+---
+
+### 4.5. Recommended Solution <a id="recommendation"></a>
+
+Based on the research and results of the MVP and spike, **[Option A: Transcoding](#option-a)** is the clear choice for friction vs value for server admins. It needs less work than manual curation, scales better, and integrates well with the existing systems in Jellyfin.
+
+However, Options A and B both provide value for different use-cases. As such my suggestion would be to implement both options together in phases. [Option A: Transcoding](#option-a) should be implemented in Phase 1, and [Option B: Manual Curation](#option-b) in Phase 2 if there is an appetite for it.
+
+[Option C: Do Nothing](#option-c) remains available to admins today, but leaves the request unaddressed. Option B is essentially Option C with the server choosing the right version for each user based on their preferences, and keeping the smaller files out of the playback versions list.
 
 <br>
 
