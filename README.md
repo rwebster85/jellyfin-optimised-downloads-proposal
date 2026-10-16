@@ -36,10 +36,13 @@ Provide clients with the ability to download videos from the library in lower qu
     - [5.4. Manual Curation](#54-manual-curation)
 - [6. Implementation](#6-implementation)
     - [6.1. Common](#61-common)
+        - [6.1.1. Download API](#611-download-api)
     - [6.2. Transcoding](#62-transcoding)
-        - [6.2.1. Directory Structure](#621-directory-structure)
+        - [6.2.1. Download API](#621-download-api)
+        - [6.2.2. Directory Structure](#622-directory-structure)
     - [6.3. Manual Curation](#63-manual-curation)
-        - [6.3.1. Directory Structure](#631-directory-structure)
+        - [6.3.1. Download API](#631-download-api)
+        - [6.3.2. Directory Structure](#632-directory-structure)
 
 <!-- /TOC -->
 
@@ -467,19 +470,60 @@ The following implementation details only reflect what is necessary for appraisa
 
 ### 6.1. Common
 
-**Download API**
+#### 6.1.1. Download API
 
-Clients will need to be updated to enable the new *Prepare then Download* workflow. Updated clients would append an additional query parameter to the download request such as `optimised=true`, informing the server the client supports the new process. Prepare returns a response immediately and is polled, because holding a download request open until the transcode finishes would exceed reverse-proxy and browser timeouts.
+All clients that support downloading will need to be updated for either Transcoding or Manual Curation.
 
-Without the new query parameter, the original file will be served unchanged, in line with current behaviour. If the optimised video file is not yet ready (does not exist, or isn't transcoded yet), the server will respond as such.
+Before downloading, clients that store media info for offline playback (Android) get a description of the file to be served, and its ETag, from `Prepare`'s ready response (Transcoding) or a new `Items/{itemId}/Download/MediaInfo` route (Manual Curation). The client sends that ETag with the download (`If-Match`). If the file has changed in between, the server refuses with `412` and the client starts again. Clients that hand the file to the browser or operating system (Web) skip this, and send the download without `If-Match`.
 
-All requests could go through the existing API (`Items/{itemId}/Download`), or a new `Items/{itemId}/Download/Optimised` route using a secondary link. In the latter, the original Download button would simply serve the original file. This proposal suggests the former, which would be the better option from a UX perspective.
+The existing download route will require an `optimised=true` parameter, becoming `GET Items/{itemId}/Download?optimised=true`. For backwards compatibility, without the new query parameter the behaviour of `GET Items/{itemId}/Download` remains unchanged: the original file will be served, in line with current behaviour.
 
----
+**Response codes**
+
+| Route | Code | Meaning |
+|---|---|---|
+| `POST Items/{itemId}/Download/Prepare` *(Transcoding)* | `200 OK` | Ready. Body: media info of the file, and its ETag. |
+| | `202 Accepted` | Transcoding, or queued. Body: progress. A `Retry-After` header suggests the poll interval. |
+| | `500 Internal Server Error` | The transcode failed. Body: state `failed`. |
+| | `404 Not Found` | Item not found, or not a downloadable video. |
+| `GET Items/{itemId}/Download/MediaInfo` *(Manual Curation)* | `200 OK` | Media info of the file that would be served (the optimised copy, or the original if there is none), and its ETag. |
+| | `404 Not Found` | Item not found. |
+| `GET Items/{itemId}/Download?optimised=true` | `200 OK` | The file, with its `ETag` header. |
+| | `206 Partial Content` | A range request, for resuming. |
+| | `409 Conflict` | *(Transcoding)* No finished copy yet: call `Prepare`. |
+| | `412 Precondition Failed` | The `If-Match` ETag does not match: the file has changed, start again. |
+| | `404 Not Found` | Item not found. |
+
+<br>
+
+All routes also return `401 Unauthorized` and `403 Forbidden`, as the existing download route does.
+
+<br>
 
 ### 6.2. Transcoding
 
-#### 6.2.1. Directory Structure
+#### 6.2.1. Download API
+
+A new *Prepare* route should be introduced for the *Prepare then Download* workflow: `Items/{itemId}/Download/Prepare`. It starts the transcode job, or joins a running one, and reports its state - ready, transcoding (with progress), or failed. Prepare returns a response immediately and is then polled (holding a download request open until the transcode finishes would exceed reverse-proxy and browser timeouts).
+
+Once `Prepare` returns `ready`, the client would send the download request: `GET Items/{itemId}/Download?optimised=true`. If the optimised video file is not yet ready (does not exist, or isn't transcoded yet), the server will respond with `409 Conflict`.
+
+The file transcoded/returned will match the user's quality tier preference (or server default).
+
+1. Client sends the request: `POST Items/{itemId}/Download/Prepare`
+    - Starts a job if a file doesn't exist, or joins an existing job if one is running.
+    - Returns `transcoding` with progress when a file is not ready
+    - Returns `ready` when the file can be downloaded
+    - Returns `failed` on error
+2. Client polls `Prepare` until it returns `ready` or `failed`
+3. When `Prepare` returns `ready` it includes the media info describing the video, and the ETag.
+4. Client sends the download request `GET Items/{itemId}/Download?optimised=true` with `If-Match: <ETag from step 3>`. If the server responds with a `412` (the file changed), or a `409` (not ready), the client returns to step 1.
+
+<br>
+
+<p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
+
+#### 6.2.2. Directory Structure
 
 **Transcode Locations**
 
@@ -528,7 +572,20 @@ Example:
 
 ### 6.3. Manual Curation
 
-#### 6.3.1. Directory Structure
+#### 6.3.1. Download API
+
+All requests could go through the Download API (`GET Items/{itemId}/Download?optimised=true`) - which matches the `Substitute` download link option in my MVP (see <a href="https://github.com/rwebster85/jellyfin/blob/transcode-downloads/MediaBrowser.Model/Configuration/DownloadBehaviour.cs">DownloadBehaviour.cs</a>), or a new `Items/{itemId}/Download/Optimised` route using a secondary link. In the latter, the original Download button would simply serve the original file. This proposal suggests the former, which would be the better option from a UX perspective.
+
+The file returned will match the user's quality tier preference (or server default), or if no optimised file exists for the item, the original is served.
+
+1. Client calls `GET Items/{itemId}/Download/MediaInfo`, which returns the description of the file to be served (the optimised copy, or the original if there is none), and its ETag.
+2. Client sends the download request `GET Items/{itemId}/Download?optimised=true` with `If-Match: <ETag from step 1>`. If the server responds with a `412` (the file changed), the client returns to step 1.
+
+<br>
+
+<p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
+
+#### 6.3.2. Directory Structure
 
 **Video Locations**
 
