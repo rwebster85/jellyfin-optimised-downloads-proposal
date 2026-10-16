@@ -388,6 +388,10 @@ Notation comes from the ArchiMate 3.2 specification, provided by Open Group, ava
 
 Both transcoding and manual curation would share some design elements.
 
+<br>
+
+<p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
+
 #### 5.2.1. Service entry point
 
 <br>
@@ -563,6 +567,8 @@ The existing download route will require an `optimised=true` parameter, becoming
 All routes also return `401 Unauthorized` and `403 Forbidden`, as the existing download route does.
 
 <br>
+
+---
 
 ### 6.2. Transcoding
 
