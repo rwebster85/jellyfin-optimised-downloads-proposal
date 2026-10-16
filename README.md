@@ -120,14 +120,6 @@ Transcoding depends entirely on the hardware (or software) solution available on
 
 To establish a baseline for cost I tested encoding from two different sources on two different machines. One was a Windows 11 desktop with an RTX 5090 (NVENC), the other a Linux Mint server with an i5-12600 (Intel QuickSync). Both used the `ffmpeg` commands Jellyfin generated on each machine with baseline settings.
 
-*Results Notes*
-
-- Both machines were idle besides the running task, so results will vary on a busy server.
-- Each figure is the average of 2 full-film runs.
-- Jellyfin caps resolution to gates based on bitrate. This was not adjusted in the spike, but implementation should override that behaviour.
-
-<br>
-
 **On-demand transcode download**
 
 **Sources:**
@@ -137,6 +129,14 @@ To establish a baseline for cost I tested encoding from two different sources on
 <br>
 
 **Command:** H.264 750 kbps, AAC stereo 192k, preset auto.
+
+<br>
+
+*Results Notes*
+
+- Both machines were idle besides the running task, so results will vary on a busy server.
+- Each figure is the average of 2 full-film runs.
+- Jellyfin caps resolution to gates based on bitrate. This was not adjusted in the spike, but implementation should override that behaviour.
 
 <br>
 
@@ -170,7 +170,9 @@ The spike first streamed the transcode to the client as it was written. Testing 
 
 <br>
 
-**Conclusion:** Files should be transcoded in full before they are served (see [5.3.1](#transcode-download)). The cost is that the first download of a video at a tier waits for the transcode: 1.5 to 3 minutes for a 1080p film, and 5 to 10 minutes for a 4K HDR one, on the hardware above.
+**Conclusion**
+
+Files should be transcoded in full before they are served (see [5.3.1](#transcode-download)). The cost is that the first download of a video at a tier waits for the transcode: 1.5 to 3 minutes for a 1080p film, and 5 to 10 minutes for a 4K HDR one, on the hardware above.
 
 <br>
 
@@ -181,7 +183,7 @@ The spike first streamed the transcode to the client as it was written. Testing 
 * **Pro:** Scalable - Server admin is not concerned with managing these optimised downloads.
 * **Pro:** Automated - Background processes handle generation and removal.
 * **Pro:** Self contained - Everything happens on the server.
-* **Con:** Real-time cost - Transcoding takes a not-insignificant amount of resources.
+* **Con:** Real-time cost - Transcoding takes a not-insignificant amount of resources, and the first download at a tier waits for it (up to 10 minutes for a 4K film on the hardware tested: see above).
 * **Con:** Unpredictable quality - Bitrate and resolution aren't obvious indicators of quality produced, and different hardware can produce different results.
 * **Con:** Unpredictable storage requirements - Storage requirements are unknown, and storage capacity is highly expensive.
 
@@ -205,21 +207,45 @@ This MVP served as an immediate use-case for my own personal use and has been te
 
 **Testing Notes**
 
-- Client devices tested include a Samsung Galaxy S23 and a Lenovo Y700 Gen 3 (Legion) tablet
-- My own use-case preferred the `Substitute` download link option, rather than `SeparateAction`. See <a href="https://github.com/rwebster85/jellyfin/blob/transcode-downloads/MediaBrowser.Model/Configuration/DownloadBehaviour.cs">DownloadBehaviour.cs</a>
+* Client devices tested include a Samsung Galaxy S23 and a Lenovo Y700 Gen 3 (Legion) tablet.
+* My own use-case preferred the `Substitute` download link option, rather than `SeparateAction`. See <a href="https://github.com/rwebster85/jellyfin/blob/transcode-downloads/MediaBrowser.Model/Configuration/DownloadBehaviour.cs">DownloadBehaviour.cs</a>
 
 <br>
 
 **Encoder comparison**
 
-Dune (2021), BluRay 1080p source - same 300-second segment at 1920×804 - My re-encoding tool, for comparison
+My encoding tool's "High" tier on NVENC, against a QuickSync equivalent (my tool is NVENC-only).
 
-| Encoder | Setting | Speed | Bitrate | VMAF vs source |
-|---|---|---|---|---|
-| RTX 5090, NVENC | CQ 24 | 25.6x | 1.626 Mbps | – |
-| i5-12600, QuickSync | ICQ 20, about the same quality | 6.7x | 1.403 Mbps | – |
-| RTX 5090, NVENC | 3 Mbps target | – | 2.558 Mbps | 82.93 |
-| i5-12600, QuickSync | 3 Mbps target | – | 2.998 Mbps | 83.40 |
+Sources used were the same as section [4.2.2](#422-transcoding-results).
+
+<br>
+
+
+*Results Notes*
+
+* VMAF over 300 s from 30:00.
+* Each figure is the average of 2 full-film runs.
+* Dune scored against a lossless FFV1 reference made through each machine's own tone-map (`tonemap_cuda` on NVENC, `tonemap_opencl` on QuickSync, both bt2390).
+
+<br>
+
+| | RTX 5090, NVENC (desktop) | i5-12600, QuickSync (server) |
+|---|---|---|
+| Encoder | `hevc_nvenc -preset p4 -tune hq`, CQ 24, 3.5 Mbps ceiling | `hevc_qsv -preset medium`, ICQ 20, no ceiling |
+| **I, Robot (2004)** - 1080p SDR, to 1920×822 | | |
+| Time for the whole film | **4 min 15 s** (27.0x) | **19 min 3 s** (6.0x) |
+| Output | 2.80 GiB, 3.49 Mbps | 2.41 GiB, 3.01 Mbps |
+| VMAF vs source (mean / 1st percentile / min) | 95.64 / 90.47 / 88.01 | 94.90 / 88.75 / 85.78 |
+| **Dune (2021)** - 4K HDR10, to 1920×802 tone-mapped (bt2390), Main 10 | | |
+| Time for the whole film | **5 min 43 s** (27.2x) | **39 min 18 s** (4.0x) |
+| Output | 2.03 GiB, 1.87 Mbps | 1.80 GiB, 1.65 Mbps |
+| VMAF vs tone-mapped source (mean / 1st percentile / min) | 91.85 / 72.92 / 63.07 | 90.58 / 79.55 / 61.27 |
+
+<br>
+
+**Conclusion**
+
+Encoding to a higher-quality tier costs far more than Jellyfin's on-demand transcode: on the same server, about 4x longer for Dune. Curated files can instead be produced on a faster machine, as here.
 
 <br>
 
@@ -230,7 +256,7 @@ Dune (2021), BluRay 1080p source - same 300-second segment at 1920×804 - My re-
 * **Pro:** Highly curated - Server admin has a hand in each file/format.
 * **Pro:** Predictable results - Files are chosen by the admin and can be checked for quality issues.
 * **Pro:** Tailored quality - Files can be tailored for their requirements, such as darkness, fast-moving action, or high frequency film grain.
-* **Con:** Time intensive - Manual curation and production takes time
+* **Con:** Time intensive - Manual curation and production takes time (encoding one 4K film at a high-quality tier took 6 to 39 minutes on the hardware tested: see above).
 * **Con:** High storage requirements - Multiple quality tiers for multiple video versions required.
 * **Con:** Not scalable - Every new video potentially requires companion optimised versions manually sourced.
 
