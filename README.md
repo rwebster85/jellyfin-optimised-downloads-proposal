@@ -567,6 +567,7 @@ The existing download route will require an `optimised=true` parameter, becoming
 | `POST Items/{itemId}/Download/Prepare` <br> *(Transcoding)* | `200 OK` | Ready. Body: media info of the file, and its ETag. |
 | | `202 Accepted` | Transcoding, or queued. Body: progress. A `Retry-After` header suggests the poll interval. |
 | | `500 Internal Server Error` | The transcode failed. Body: state `failed`. |
+| | `507 Insufficient Storage` | No transcode location has room for the new transcode. |
 | | `404 Not Found` | Item not found, or not a downloadable video. |
 | `GET Items/{itemId}/Download/MediaInfo` <br> *(Manual Curation)* | `200 OK` | Media info of the file that would be served (the optimised copy, or the original if there is none), and its ETag. |
 | | `404 Not Found` | Item not found. |
@@ -635,13 +636,19 @@ There will also be a checkbox option where the admin to opt to invalidate existi
 
 **Transcode Locations**
 
-The admin should have the ability to select multiple storage locations for transcoded files. The UI would re-use the folder picker used by the Library editor, and locations will be set on a *per library* basis, as well as a global collection. The library set location will be used first, followed by the global locations. Within each collection, the first location is primary, second is secondary etc. We would need to enable a remaining storage limit amount for each location, which when met would then store files in the second location, then the third etc.
+The admin should have the ability to select multiple storage locations for transcoded files. The UI would re-use the folder picker used by the Library editor, and locations will be set on a *per library* basis, as well as a global collection. For writing, the library set location will be used first, followed by the global locations. Within each collection, the first location is primary, second is secondary etc. Each location has a free-space reserve, which when reached means files are stored in the second location, then the third etc. It would be a number field in `GB` that represents the minimum free space to leave on the *drive*: when a new transcode would take it below this, the next location is used. The reserve is checked against the free space of the drive the location is on. Locations on the same drive share its free space, so the smallest reserve among them is the one that applies: give them the same value. An estimate of the resulting transcoded file will be used to determine how much space is needed.
 
 The unpredictability of the required storage space for as-yet-to-be transcoded files means the system must enable resilience in the event one storage location may be at capacity.
 
+If all locations are full, `Prepare` will return `507 Insufficient Storage`.
+
 **Locations Example**
 
-Given a `Films` library, that library's settings screen would include an element for selecting multiple locations for storing transcodes. Given a `TV Shows` library, that library's settings screen would have its own. On the Downloads settings screen, a separate (but reusing the same element) list of locations can be set. This allows server admins to have distinct locations for individual libraries, use a single global set of locations, or a mix of both.
+Given a `Films` library, that library's settings screen would include an element for selecting multiple locations for storing transcodes. Given a `TV Shows` library, that library's settings screen would have its own. On the Downloads settings screen, a separate list of locations can be set. This allows server admins to have distinct locations for individual libraries, use a single global set of locations, or a mix of both.
+
+**Finding an Existing Transcode**
+
+The transcode's path relative to a location is fixed by its video version, tier, tier version and audio track (see *Filename/Directory Structure* below for the layout), so no searching is needed: the server checks for that path in each of the library's locations, then each global location, and serves the first match that has its finished sidecar. A location that is unavailable is skipped.
 
 **Filename/Directory Structure**
 
