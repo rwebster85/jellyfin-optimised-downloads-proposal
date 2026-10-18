@@ -58,20 +58,20 @@ Optimised downloading enables downloading media for offline/travel consumption b
 
 ## 2. Constraints
 
-- Video files can come in a variety of container/codec configurations.
-- Subtitles can either be embedded or external, in a variety of formats.
-- MP4 file embedded subtitles are restricted to text based (MOV_TEXT).
-- Transcoding/re-encoding takes time and resources.
-- Current transcoding behaviour not equipped to handle download for playback without adaptation.
+* Video files can come in a variety of container/codec configurations.
+* Subtitles can either be embedded or external, in a variety of formats.
+* MP4 file embedded subtitles are restricted to text based (MOV_TEXT).
+* Transcoding/re-encoding takes time and resources.
+* Current transcoding behaviour not equipped to handle download for playback without adaptation.
 
 <br>
 
 ## 3. Considerations
 
-- Multiple options for server admins could be made available and are not exclusive.
-- Options and functionality should be both simple and valuable.
-- Jellyfin provides transcoding functionality that could be adapted, reducing technical complexity.
-- Still requires significant technical investment and architectural implementation.
+* Multiple options for server admins could be made available and are not exclusive.
+* Options and functionality should be both simple and valuable.
+* Jellyfin provides transcoding functionality that could be adapted, reducing technical complexity.
+* Still requires significant technical investment and architectural implementation.
 
 <br>
 
@@ -81,11 +81,11 @@ What follows is an appraisal of three potential solutions. The two change option
 
 ### 4.1. Common concepts
 
-- Simplified end-user experience
-- Multiple Quality Tiers
-    - Should include options for the server admin to set quality tiers with names (e.g. "High", "Standard") and resolution (1080p, 720p) for better end user UX. [Option A](#option-a) should also include bitrate targets (3Mbps, 800Kbps) for transcoding.
-- Multiple optimised download storage locations
-    - Admins should be able to select multiple locations for either transcode download or for manual curation file storage.
+* Simplified end-user experience
+* Multiple Quality Tiers
+    * Should include options for the server admin to set quality tiers with names (e.g. "High", "Standard") and resolution (1080p, 720p) for better end user UX. [Option A](#option-a) should also include bitrate targets (3Mbps, 800Kbps) for transcoding.
+* Multiple optimised download storage locations
+    * Admins should be able to select multiple locations for either transcode download or for manual curation file storage.
 
 <br>
 
@@ -107,8 +107,8 @@ The results of this work can be viewed as follows: <a href="https://github.com/r
 
 *Source Code Notes*
 
-- Encoding is fixed at `mkv h264 1280x720 750k aac 2ch 192k`. See `DownloadTranscoder.cs` <a href="https://github.com/rwebster85/jellyfin/blob/d748fc95051c1d2eac464ac665d5dfafe462f450/Jellyfin.Api/Helpers/DownloadTranscoder.cs#L56">line 56</a> and <a href="https://github.com/rwebster85/jellyfin/blob/d748fc95051c1d2eac464ac665d5dfafe462f450/Jellyfin.Api/Helpers/DownloadTranscoder.cs#L249">line 249</a>
-- Some features and UI elements may remain from the manual branch but are non-functional
+* Encoding is fixed at `mkv h264 1280x720 750k aac 2ch 192k`. See `DownloadTranscoder.cs` <a href="https://github.com/rwebster85/jellyfin/blob/d748fc95051c1d2eac464ac665d5dfafe462f450/Jellyfin.Api/Helpers/DownloadTranscoder.cs#L56">line 56</a> and <a href="https://github.com/rwebster85/jellyfin/blob/d748fc95051c1d2eac464ac665d5dfafe462f450/Jellyfin.Api/Helpers/DownloadTranscoder.cs#L249">line 249</a>
+* Some features and UI elements may remain from the manual branch but are non-functional
 
 <br>
 
@@ -134,9 +134,9 @@ To establish a baseline for cost I tested encoding from two different sources on
 
 *Results Notes*
 
-- Both machines were idle besides the running task, so results will vary on a busy server.
-- Each figure is the average of 2 full-film runs.
-- Jellyfin caps resolution to gates based on bitrate. This was not adjusted in the spike, but implementation should override that behaviour.
+* Both machines were idle besides the running task, so results will vary on a busy server.
+* Each figure is the average of 2 full-film runs.
+* Jellyfin caps resolution to gates based on bitrate. This was not adjusted in the spike, but implementation should override that behaviour.
 
 <br>
 
@@ -400,8 +400,8 @@ Both transcoding and manual curation would share some design elements.
 
 **Notes**
 
-- "Helper" is a service named as per the Jellyfin convention.
-- Clients tested are Web and Android. Others that support downloading should be assessed.
+* "Helper" is a service named as per the Jellyfin convention.
+* Clients tested are Web and Android. Others that support downloading should be assessed.
 
 <br>
 
@@ -415,7 +415,7 @@ Both transcoding and manual curation would share some design elements.
 
 **Notes**
 
-- Original file being served when selected or no applicable version available.
+* Original file being served when selected or no applicable version available.
 
 <br>
 
@@ -431,7 +431,7 @@ Both transcoding and manual curation would share some design elements.
 
 **Notes**
 
-- Helper handles user preferences, backend download options use the backend services.
+* Helper handles user preferences, backend download options use the backend services.
 
 <br>
 
@@ -603,10 +603,10 @@ Once `Prepare` returns `ready`, the client would send the download request along
 The file transcoded/returned will match the user's quality tier preference (or server default), the selected audio track downmixed to stereo (AAC by default) with no other audio, and all subtitle tracks from the video. 
 
 1. Client sends the request: `POST Items/{itemId}/Download/Prepare?audioId=1`
-    - Starts a job if a file doesn't exist, or joins an existing job if one is running.
-    - Returns `transcoding` with progress when a file is not ready
-    - Returns `ready` when the file can be downloaded
-    - Returns `failed` on error
+    * Starts a job if a file doesn't exist, or joins an existing job if one is running.
+    * Returns `transcoding` with progress when a file is not ready
+    * Returns `ready` when the file can be downloaded
+    * Returns `failed` on error
 2. Client polls `Prepare` until it returns `ready` or `failed`
 3. When `Prepare` returns `ready` it includes the media info describing the video, and the ETag.
 4. Client sends the download request `GET Items/{itemId}/Download?optimised=true&audioId=1` with `If-Match: <ETag from step 3>`. If the server responds with a `412` (the file changed), or a `409` (not ready), the client returns to step 1.
