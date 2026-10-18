@@ -175,7 +175,7 @@ The results of this work can be viewed as follows: <a href="https://github.com/r
 
 Transcoding depends entirely on the hardware (or software) solution available on the server. As such, a wide variety of configurations will produce varying results, ranging from potential image quality differences to time-to-transcode delay.
 
-To establish a baseline for cost I tested encoding from two different sources on two different machines. One was a Windows 11 desktop with an RTX 5090 (NVENC), the other a Linux Mint server with an i5-12600 (Intel QuickSync). Both used the `ffmpeg` commands Jellyfin generated on each machine with baseline settings.
+To establish a baseline for cost I tested hardware encoding from two different sources on two different machines. One was a Windows 11 desktop with an RTX 5090 (NVENC), the other a Linux Mint server with an i5-12600 (Intel QuickSync). A separate run with the same sources was tested on the server with hardware acceleration disabled. Each used the `ffmpeg` commands Jellyfin generated on each machine with baseline settings.
 
 **On-demand transcode download**
 
@@ -261,7 +261,7 @@ The spike first streamed the transcode to the client as it was written. Testing 
 
 **Conclusion**
 
-Files should be transcoded in full before they are served (see [5.3.1](#531-transcode-process)). The cost is that the first download of a video at a tier and audio track waits for the transcode: 1.5 to 3 minutes for a 1080p film, and 5 to 10 minutes for a 4K HDR one, on the hardware above.
+Files should be transcoded in full before they are served (see [5.3.1](#531-transcode-process)). The cost is that the first download of a video at a tier and audio track waits for the transcode: 1.5 to 3 minutes for a 1080p film, and 5 to 10 minutes for a 4K HDR one, on the systems above with hardware H.264 encoding.
 
 <br>
 
@@ -272,7 +272,7 @@ Files should be transcoded in full before they are served (see [5.3.1](#531-tran
 * **Pro:** Scalable - Server admin is not concerned with managing these optimised downloads.
 * **Pro:** Automated - Background processes handle generation and removal.
 * **Pro:** Self contained - Everything happens on the server.
-* **Con:** Real-time cost - Transcoding takes a not-insignificant amount of resources, and the first download at a tier and audio track waits for it (up to 10 minutes for a 4K film on the hardware tested: see above).
+* **Con:** Real-time cost - Transcoding takes a not-insignificant amount of resources, especially in software, and the first download at a tier and audio track waits for it (up to 10 minutes for a 4K film with hardware H.264 encoding, and over 20 in software: see above).
 * **Con:** Unpredictable quality - Bitrate and resolution aren't obvious indicators of quality produced, and different hardware can produce different results.
 * **Con:** Unpredictable storage requirements - Storage requirements are unknown, as each video can have one transcode per tier and audio track (though most downloads use the user's default track), and storage capacity is highly expensive.
 
