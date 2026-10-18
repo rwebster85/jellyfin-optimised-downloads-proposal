@@ -96,6 +96,8 @@ There have been several requests for this functionality within Jellyfin Core as 
 
 This is a new proposal that follows *nielsvanvelzen*'s comment in [Meta #66](https://github.com/jellyfin/jellyfin-meta/discussions/66#discussioncomment-15641494), suggesting opening a new discussion rather than continuing the old one. It builds off previous discussions/requests while presenting a solution as an appraisal of three potential options, based on assessments from a proof-of-concept MVP (one in actual use within a real library and device ecosystem) and a feasibility spike, then finally recommending a solution. It also includes transcoding test results from real hardware to provide example data of potential time and resource costs.
 
+It is also available as a public repository on my [GitHub](https://github.com/rwebster85/jellyfin-optimised-downloads-proposal).
+
 <br>
 
 <p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
