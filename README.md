@@ -15,34 +15,37 @@ Provide clients with the ability to download videos from the library in lower qu
   - [4.2. Option A: Transcoding](#42-option-a-transcoding)
     - [4.2.1. Transcoding Spike](#421-transcoding-spike)
     - [4.2.2. Transcoding Results](#422-transcoding-results)
-    - [4.2.3. Pros \& Cons](#423-pros--cons)
+    - [4.2.3. Transcoding - Pros \& Cons](#423-transcoding---pros--cons)
   - [4.3. Option B: Manual Curation](#43-option-b-manual-curation)
     - [4.3.1. Manual Curation MVP](#431-manual-curation-mvp)
-    - [4.3.2. Pros \& Cons](#432-pros--cons)
+    - [4.3.2. Manual Curation - Pros \& Cons](#432-manual-curation---pros--cons)
   - [4.4. Option C: Do Nothing](#44-option-c-do-nothing)
-    - [4.4.1. Pros \& Cons](#441-pros--cons)
+    - [4.4.1. Do Nothing - Pros \& Cons](#441-do-nothing---pros--cons)
   - [4.5. Recommended Solution](#45-recommended-solution)
 - [5. High-Level Design](#5-high-level-design)
   - [5.1. ArchiMate Notation](#51-archimate-notation)
-  - [5.2. Common Designs](#52-common-designs)
+  - [5.2. HLD - Common Designs](#52-hld---common-designs)
     - [5.2.1. Service entry point](#521-service-entry-point)
     - [5.2.2. Downloadable file interaction](#522-downloadable-file-interaction)
     - [5.2.3. Settings interaction](#523-settings-interaction)
     - [5.2.4. Full common design](#524-full-common-design)
-  - [5.3. Transcoding](#53-transcoding)
-    - [5.3.1. Transcode -\> Download process](#531-transcode---download-process)
+  - [5.3. HLD - Transcoding](#53-hld---transcoding)
+    - [5.3.1. Transcode Process](#531-transcode-process)
     - [5.3.2. Transcode Cleanup](#532-transcode-cleanup)
-  - [5.4. Manual Curation](#54-manual-curation)
+  - [5.4. HLD - Manual Curation](#54-hld---manual-curation)
 - [6. Concrete Designs](#6-concrete-designs)
 - [7. Implementation](#7-implementation)
   - [7.1. Common](#71-common)
-    - [7.1.1. Download API](#711-download-api)
+    - [7.1.1. Global settings screen](#711-global-settings-screen)
+    - [7.1.2. Download API](#712-download-api)
   - [7.2. Transcoding](#72-transcoding)
-    - [7.2.1. Download API](#721-download-api)
-    - [7.2.2. Directory Structure](#722-directory-structure)
+    - [7.2.1. Transcoding - Download API](#721-transcoding---download-api)
+    - [7.2.2. Transcoding - Global Settings](#722-transcoding---global-settings)
+    - [7.2.3. Transcoding - Directory Structure](#723-transcoding---directory-structure)
   - [7.3. Manual Curation](#73-manual-curation)
-    - [7.3.1. Download API](#731-download-api)
-    - [7.3.2. Directory Structure](#732-directory-structure)
+    - [7.3.1. Manual Curation - Download API](#731-manual-curation---download-api)
+    - [7.3.2. Manual Curation - Global Settings](#732-manual-curation---global-settings)
+    - [7.3.3. Manual Curation - Directory Structure](#733-manual-curation---directory-structure)
 
 
 ## 1. Motivation
@@ -175,7 +178,7 @@ Files should be transcoded in full before they are served (see [5.3.1](#transcod
 
 <p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
 
-#### 4.2.3. Pros & Cons
+#### 4.2.3. Transcoding - Pros & Cons
 
 * **Pro:** Scalable - Server admin is not concerned with managing these optimised downloads.
 * **Pro:** Automated - Background processes handle generation and removal.
@@ -248,7 +251,7 @@ Encoding to a higher-quality tier costs far more than Jellyfin's on-demand trans
 
 <p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
 
-#### 4.3.2. Pros & Cons
+#### 4.3.2. Manual Curation - Pros & Cons
 
 * **Pro:** Highly curated - Server admin has a hand in each file/format.
 * **Pro:** Predictable results - Files are chosen by the admin and can be checked for quality issues.
@@ -269,7 +272,7 @@ Change nothing about the existing system and rely on server admins to make use o
 
 <p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
 
-#### 4.4.1. Pros & Cons
+#### 4.4.1. Do Nothing - Pros & Cons
 
 * **Pro:** No new code changes needed to review, or for maintainers to own.
 * **Pro:** No server transcoding load, and no storage beyond what the admin chooses to add.
@@ -381,7 +384,7 @@ Notation comes from the ArchiMate 3.2 specification, provided by Open Group, ava
 
 ---
 
-### 5.2. Common Designs
+### 5.2. HLD - Common Designs
 
 Both transcoding and manual curation would share some design elements.
 
@@ -449,7 +452,7 @@ Both transcoding and manual curation would share some design elements.
 
 ---
 
-### 5.3. Transcoding
+### 5.3. HLD - Transcoding
 
 Definitions:
 
@@ -462,7 +465,7 @@ Definitions:
 
 <p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
 
-#### 5.3.1. Transcode -> Download process
+#### 5.3.1. Transcode Process
 
 1. Download locations are configured by the admin in settings, or the server default location used.
 2. User download request is captured by the controller.
@@ -510,7 +513,7 @@ Definitions:
 
 ---
 
-### 5.4. Manual Curation
+### 5.4. HLD - Manual Curation
 
 1. Download versions of videos are placed on the server by the admin.
 2. Download locations are configured by the admin in settings.
@@ -541,7 +544,15 @@ The following implementation details only reflect what is necessary for appraisa
 
 ### 7.1. Common
 
-#### 7.1.1. Download API
+#### 7.1.1. Global settings screen
+
+A global settings screen will be created for server admins can enable this feature, define their tiers, set global optimised version locations (transcodes or manually placed), and determine if the downloads should use the existing link in the UI or a separate one. Admins would also enable being able to download the original file as-is.
+
+<br>
+
+<p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
+
+#### 7.1.2. Download API
 
 All clients that support downloading will need to be updated for either Transcoding or Manual Curation.
 
@@ -553,11 +564,11 @@ The existing download route will require an `optimised=true` parameter, becoming
 
 | Route | Code | Meaning |
 |---|---|---|
-| `POST Items/{itemId}/Download/Prepare` *(Transcoding)* | `200 OK` | Ready. Body: media info of the file, and its ETag. |
+| `POST Items/{itemId}/Download/Prepare` <br> *(Transcoding)* | `200 OK` | Ready. Body: media info of the file, and its ETag. |
 | | `202 Accepted` | Transcoding, or queued. Body: progress. A `Retry-After` header suggests the poll interval. |
 | | `500 Internal Server Error` | The transcode failed. Body: state `failed`. |
 | | `404 Not Found` | Item not found, or not a downloadable video. |
-| `GET Items/{itemId}/Download/MediaInfo` *(Manual Curation)* | `200 OK` | Media info of the file that would be served (the optimised copy, or the original if there is none), and its ETag. |
+| `GET Items/{itemId}/Download/MediaInfo` <br> *(Manual Curation)* | `200 OK` | Media info of the file that would be served (the optimised copy, or the original if there is none), and its ETag. |
 | | `404 Not Found` | Item not found. |
 | `GET Items/{itemId}/Download?optimised=true` | `200 OK` | The file, with its `ETag` header. |
 | | `206 Partial Content` | A range request, for resuming. |
@@ -575,43 +586,105 @@ All routes also return `401 Unauthorized` and `403 Forbidden`, as the existing d
 
 ### 7.2. Transcoding
 
-#### 7.2.1. Download API
+Transcoded files will include all existing subtitle files from the original video, alongside a single audio track (whichever is selected in the UI)
+
+<br>
+
+<p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
+
+#### 7.2.1. Transcoding - Download API
 
 A new *Prepare* route should be introduced for the *Prepare then Download* workflow: `Items/{itemId}/Download/Prepare`. It starts the transcode job, or joins a running one, and reports its state - ready, transcoding (with progress), or failed. Prepare returns a response immediately and is then polled (holding a download request open until the transcode finishes would exceed reverse-proxy and browser timeouts).
 
-Once `Prepare` returns `ready`, the client would send the download request: `GET Items/{itemId}/Download?optimised=true`. If the optimised video file is not yet ready (does not exist, or isn't transcoded yet), the server will respond with `409 Conflict`.
+`Prepare` should include the currently selected audio track ID as a query parameter (e.g. `audioId=1`).
 
-The file transcoded/returned will match the user's quality tier preference (or server default).
+Once `Prepare` returns `ready`, the client would send the download request along with the selected audio track ID: `GET Items/{itemId}/Download?optimised=true&audioId=1`. If the optimised video file is not yet ready (does not exist, or isn't transcoded yet), the server will respond with `409 Conflict`.
 
-1. Client sends the request: `POST Items/{itemId}/Download/Prepare`
+The file transcoded/returned will match the user's quality tier preference (or server default), the selected audio track downmixed to stereo (AAC by default) with no other audio, and all subtitle tracks from the video. 
+
+1. Client sends the request: `POST Items/{itemId}/Download/Prepare?audioId=1`
     - Starts a job if a file doesn't exist, or joins an existing job if one is running.
     - Returns `transcoding` with progress when a file is not ready
     - Returns `ready` when the file can be downloaded
     - Returns `failed` on error
 2. Client polls `Prepare` until it returns `ready` or `failed`
 3. When `Prepare` returns `ready` it includes the media info describing the video, and the ETag.
-4. Client sends the download request `GET Items/{itemId}/Download?optimised=true` with `If-Match: <ETag from step 3>`. If the server responds with a `412` (the file changed), or a `409` (not ready), the client returns to step 1.
+4. Client sends the download request `GET Items/{itemId}/Download?optimised=true&audioId=1` with `If-Match: <ETag from step 3>`. If the server responds with a `412` (the file changed), or a `409` (not ready), the client returns to step 1.
 
 <br>
 
 <p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
 
-#### 7.2.2. Directory Structure
+#### 7.2.2. Transcoding - Global Settings
+
+The admin will be able to create quality tiers that include a display name, resolution, and bitrate. For example:
+
+* Display name: High (1080p) - free text field
+* Resolution: 1080p - from a list of resolutions
+* Bitrate: 1500 - free text field in `Kbps`
+
+<br>
+
+There will also be a checkbox option where the admin to opt to invalidate existing transcodes when they make changes to the quality tiers. By default this will be off.
+
+<br>
+
+<p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
+
+#### 7.2.3. Transcoding - Directory Structure
 
 **Transcode Locations**
 
-The admin should have the ability to select multiple storage locations for transcoded files. The UI would re-use the folder picker used by the Library editor. The first location is primary, second is secondary etc. We would need to enable a remaining storage limit amount for each location, which when met would then store files in the second location, then the third etc.
+The admin should have the ability to select multiple storage locations for transcoded files. The UI would re-use the folder picker used by the Library editor, and locations will be set on a *per library* basis, as well as a global collection. The library set location will be used first, followed by the global locations. Within each collection, the first location is primary, second is secondary etc. We would need to enable a remaining storage limit amount for each location, which when met would then store files in the second location, then the third etc.
 
 The unpredictability of the required storage space for as-yet-to-be transcoded files means the system must enable resilience in the event one storage location may be at capacity.
 
-**Directory Structure**
+**Locations Example**
 
-The directory structure used for storing transcoded files, inside of the admin selected root locations, should match the schema used by the Trickplay system. This is to protect against OS path length limits that may be triggered when using something else such as library, film, or video filename, or combination of all.
+Given a `Films` library, that library's settings screen would include an element for selecting multiple locations for storing transcodes. Given a `TV Shows` library, that library's settings screen would have its own. On the Downloads settings screen, a separate (but reusing the same element) list of locations can be set. This allows server admins to have distinct locations for individual libraries, use a single global set of locations, or a mix of both.
+
+**Filename/Directory Structure**
+
+The directory structure used for storing transcoded files, inside of the admin selected root locations, will be similar to the schema used by the Trickplay system. This is to protect against OS path length limits that may be triggered when using something else such as library, film, or video filename, or combination of all.
+
+Resulting extension will be determined by the source video and its compatibility with audio/subtitles.
+
+| Source | Transcode | Why |
+|---|---|---|
+| `.mkv` | `.mkv` | Holds any subtitle format, so every track copies as-is. |
+| `.mp4`, `.m4v`, `.mov` | `.mp4` | These can only hold text subtitles (`mov_text`), which copy into MP4 unchanged. |
+| `.webm` | `.mkv` | WebM only allows VP8/VP9/AV1 video and Opus/Vorbis audio. |
+| `.avi` | `.mkv` | Poor support for modern audio codecs. |
+| `.ts`, `.m2ts`, `.mts` | `.mkv` | Blu-ray rips carry PGS subtitles, which cannot be written back into MPEG-TS. |
+| `.wmv`, `.asf`, `.flv`, `.mpg`, `.mpeg`, `.vob`, `.ogv` and other video types | `.mkv` | Older containers with limited codec and subtitle support. |
+| `.iso`, DVD / Blu-ray folders | `.mkv` | No single source file or extension to follow. |
+
+<br>
+
+The formula for determining the transcoded video's `filename` would be as follows:
+
+`filename = <tierId>_v<tierVersion>_a<audioStreamIndex>.<ext>`
+
+* `<tierId>` - Lowercase GUID with no hyphens (`Guid.ToString("N")`).
+* `<tierVersion>` - The version of the tier, starts at 1, and increases when the tier is edited with *invalidate existing transcodes* ticked.
+* `<audioStreamIndex>` - The audio stream selected for the transcode (Jellyfin's index across all streams, so the first audio track is usually 1).
+* `<ext>` - See above table.
+
+<br>
+
+Example result:
+
+`8d3a6f1e7c4b4a2d9e5f1b0c2d3e4f50_v2_a1.mkv`
+
+<br>
+
+For the directory names, the first two characters of the video version ID (`MediaSourceInfo.Id`) - the same as the `itemId` the download route is called with - will be used as the parent directory, then the full video version ID as a child directory, within which the transcoded video would be placed.
 
 
 ```
-<location>/<first 2 chars of the version id>/<version id>/<tier id>.<ext>
+<location>/<first 2 chars of the version id>/<version id>/<filename>
 ```
+
 Using the video Version ID GUID also solves the issue of a film/episode containing multiple video file versions.
 
 <br>
@@ -621,22 +694,22 @@ Example:
 ```
 /path/to/downloads/
 └── a1/
-    └── a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d/           <- one video (one version of a film)
-        ├── 8d3a6f1e7c4b4a2d9e5f1b0c2d3e4f50.mkv        <- its transcode at one tier
+    └── a1b2c3d4e5f64a7b8c9d0e1f2a3b4c5d/
+        └── 8d3a6f1e7c4b4a2d9e5f1b0c2d3e4f50_v2_a1.mkv
 ```
 
 <br>
 
-Transcoded files should have a companion side-car `.json` file, describing the encoding details and the details of the source. This is used for staleness checking, and is only created upon successful video transcode.
+Transcoded files should have a companion side-car `.json` file, describing the encoding details and the details of the source. This is used for staleness checking, and is only created upon successful video transcode. It would include the `ETag` in the details. A transcode without a side-car is unfinished or failed, and is removed by the cleanup.
 
 Example:
 
 ```
 /path/to/downloads/
 └── a1/
-    └── a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d/           <- one video (one version of a film)
-        ├── 8d3a6f1e7c4b4a2d9e5f1b0c2d3e4f50.mkv        <- its transcode at one tier
-        └── 8d3a6f1e7c4b4a2d9e5f1b0c2d3e4f50.json       <- "finished" record for that transcode
+    └── a1b2c3d4e5f64a7b8c9d0e1f2a3b4c5d/
+        ├── 8d3a6f1e7c4b4a2d9e5f1b0c2d3e4f50_v2_a1.mkv
+        └── 8d3a6f1e7c4b4a2d9e5f1b0c2d3e4f50_v2_a1.mkv.json
 ```
 
 <br>
@@ -645,7 +718,7 @@ Example:
 
 ### 7.3. Manual Curation
 
-#### 7.3.1. Download API
+#### 7.3.1. Manual Curation - Download API
 
 All requests could go through the Download API (`GET Items/{itemId}/Download?optimised=true`) - the equivalent of the `Substitute` option in my MVP for updated clients (see <a href="https://github.com/rwebster85/jellyfin/blob/transcode-downloads/MediaBrowser.Model/Configuration/DownloadBehaviour.cs">DownloadBehaviour.cs</a>), or a new `Items/{itemId}/Download/Optimised` route using a secondary link. In the latter, the original Download button would simply serve the original file. This proposal suggests the former, which would be the better option from a UX perspective.
 
@@ -658,7 +731,20 @@ The file returned will match the user's quality tier preference (or server defau
 
 <p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
 
-#### 7.3.2. Directory Structure
+#### 7.3.2. Manual Curation - Global Settings
+
+The admin will be able to create quality tiers that include a display name and suffix. For example:
+
+* Display name: "High (1080p)"
+* Suffix: "high"
+
+Manually placed files should use the suffix as set in the UI.
+
+<br>
+
+<p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
+
+#### 7.3.3. Manual Curation - Directory Structure
 
 **Video Locations**
 
