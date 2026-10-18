@@ -208,7 +208,7 @@ This MVP served as an immediate use-case for my own personal use and has been te
 **Testing Notes**
 
 * Client devices tested include a Samsung Galaxy S23 and a Lenovo Y700 Gen 3 (Legion) tablet.
-* My own use-case preferred the `Substitute` download link option, rather than `SeparateAction`. See <a href="https://github.com/rwebster85/jellyfin/blob/transcode-downloads/MediaBrowser.Model/Configuration/DownloadBehaviour.cs">DownloadBehaviour.cs</a>
+* My own use-case preferred the `Substitute` download link option, rather than `SeparateAction` (this proposal makes it the only behaviour). See <a href="https://github.com/rwebster85/jellyfin/blob/transcode-downloads/MediaBrowser.Model/Configuration/DownloadBehaviour.cs">DownloadBehaviour.cs</a>
 
 <br>
 
@@ -773,7 +773,7 @@ Example:
 
 #### 7.3.1. Manual Curation - Download API
 
-All requests could go through the Download API (`GET Items/{itemId}/Download?optimised=true`) - the equivalent of the `Substitute` option in my MVP for updated clients (see <a href="https://github.com/rwebster85/jellyfin/blob/transcode-downloads/MediaBrowser.Model/Configuration/DownloadBehaviour.cs">DownloadBehaviour.cs</a>), or a new `Items/{itemId}/Download/Optimised` route using a secondary link. In the latter, the original Download button would simply serve the original file. This proposal suggests the former, which would be the better option from a UX perspective.
+Manual Curation uses the same links as Transcoding (see [7.1.2](#712-download-api)): the existing `Download` link requests `GET Items/{itemId}/Download?optimised=true`, and `Download Original` (when shown) the unchanged route. No `Prepare` step is needed, as curated files already exist.
 
 The file returned will match the user's quality tier preference (or server default), or if no optimised file exists for the item, the original is served.
 
