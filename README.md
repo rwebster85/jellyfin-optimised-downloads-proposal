@@ -582,7 +582,7 @@ Which videos and tiers the task covers, and how it shares the server with on-dem
 
 ## 6. Concrete Designs
 
-TBD
+To follow once an option is agreed (see [section 5](#5-high-level-design)).
 
 <br>
 
