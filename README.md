@@ -32,6 +32,7 @@ Provide clients with the ability to download videos from the library in lower qu
   - [5.3. HLD - Transcoding](#53-hld---transcoding)
     - [5.3.1. Transcode Process](#531-transcode-process)
     - [5.3.2. Transcode Cleanup](#532-transcode-cleanup)
+    - [5.3.3. Scheduled Pre-transcode](#533-scheduled-pre-transcode)
   - [5.4. HLD - Manual Curation](#54-hld---manual-curation)
 - [6. Concrete Designs](#6-concrete-designs)
 - [7. Implementation](#7-implementation)
@@ -154,6 +155,37 @@ To establish a baseline for cost I tested encoding from two different sources on
 | Speed | **32.7x** (783 fps) | **16.5x** (394 fps) |
 | Time for the whole film | **4 min 46 s** | **9 min 28 s** |
 | Output | 1,042 MiB, 937.6 kbps | 1,040 MiB, 935.6 kbps |
+
+<br>
+
+**Hardware vs software encoding**
+
+The same transcodes on the server with hardware acceleration set to None, to show the cost on a server without it. Jellyfin uses `libx264` / `libx265` with preset auto (`veryfast`), its default CRF (23 / 28) capped at 750 kbps, and `tonemapx` (bt2390) for Dune. HEVC was added for both encoders.
+
+<br>
+
+*Results Notes*
+
+* One full-film run each. The QuickSync H.264 runs were repeated to measure CPU, and matched the speeds above.
+* CPU is the share of all 12 threads busy, sampled every 5 seconds. Peak load is the highest 1-minute load average during the run.
+* Software output usually falls below the 750 kbps cap, as Jellyfin's CRF decides the bitrate, so those files are smaller and likely lower quality (not measured).
+
+<br>
+
+| Source | Codec | Encoder | Time for the whole film | CPU busy (mean) | Peak load | Output |
+|---|---|---|---|---|---|---|
+| I, Robot (2004) | H.264 | QuickSync | **2 min 40 s** (42.9x) | 10% | 1.7 | 775 MiB, 944 kbps |
+| | | Software | **5 min 45 s** (19.9x) | 83% | 20.6 | 663 MiB, 807 kbps |
+| | HEVC | QuickSync | **4 min 34 s** (25.0x) | 9% | 1.6 | 775 MiB, 944 kbps |
+| | | Software | **9 min 53 s** (11.6x) | 78% | 16.1 | 449 MiB, 547 kbps |
+| Dune (2021) | H.264 | QuickSync | **9 min 41 s** (16.0x) | 23% | 3.8 | 1,040 MiB, 936 kbps |
+| | | Software | **20 min 31 s** (7.5x) | 88% | 25.3 | 575 MiB, 518 kbps |
+| | HEVC | QuickSync | **11 min 13 s** (13.8x) | 22% | 3.9 | 1,034 MiB, 930 kbps |
+| | | Software | **23 min 36 s** (6.5x) | 90% | 28.0 | 359 MiB, 323 kbps |
+
+<br>
+
+Without hardware encoding, a transcode takes about twice as long and holds 78-90% of the CPU for its whole duration: 8 to 19 times the CPU time of QuickSync, on files that are probably worse. ***Transcoded downloads should require hardware acceleration.***
 
 <br>
 
@@ -511,6 +543,19 @@ Definitions:
 ![Transcoding cleanup design](/images/hld-transcoding-cleaner.png)
 
 </details>
+
+<br>
+
+<p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
+
+#### 5.3.3. Scheduled Pre-transcode
+
+1. A scheduled task, like Jellyfin's trickplay image generation, transcodes videos ahead of any download request. The admin runs it manually or sets a schedule for it, as with other scheduled tasks.
+2. It produces the same transcodes as an on-demand download, in the same locations and with the same names, so a later download request finds them ready and is served at once.
+3. A download request for a video the task is transcoding joins that job rather than starting another.
+4. Pre-made transcodes follow the same rules as on-demand ones: the same storage locations and free-space reserve, the same staleness rules, and the same cleanup.
+
+Which videos and tiers the task covers, and how it shares the server with on-demand transcodes, are open questions (see [7.4](#74-open-questions)).
 
 <br>
 
@@ -902,3 +947,4 @@ Points not yet decided, where a maintainer's view would settle the design:
 4. **Users without that permission.** Served the original, as proposed, or refused? (See [7.1.1](#711-global-settings-screen).)
 5. **Audio codec.** The audio is downmixed to stereo: AAC by default, or another codec, possibly chosen per tier? (See [7.2.1](#721-transcoding---download-api).)
 6. **A failed transcode.** `Prepare` returns `500 Internal Server Error` with state `failed`, as proposed, or `200 OK` with state `failed`, treating the failure as a reported state rather than a server error? (See [7.1.2](#712-download-api).)
+7. **Scheduled pre-transcode.** Which videos the task covers (every video, chosen libraries, or only those without a transcode), at which tiers (the default only, or all) and with which audio track, and whether its transcodes count towards the download transcode limit or run separately, one at a time like trickplay. (See [5.3.3](#533-scheduled-pre-transcode).)
