@@ -168,7 +168,7 @@ The same transcodes on the server with hardware acceleration set to None, to sho
 
 * One full-film run each. The QuickSync H.264 runs were repeated to measure CPU, and matched the speeds above.
 * CPU is the share of all 12 threads busy, sampled every 5 seconds. Peak load is the highest 1-minute load average during the run.
-* Software output usually falls below the 750 kbps cap, as Jellyfin's CRF decides the bitrate, so those files are smaller and likely lower quality (not measured).
+* Software output usually falls below the 750 kbps cap, as Jellyfin's CRF decides the bitrate, so those files are smaller. Quality was not compared.
 
 <br>
 
@@ -185,7 +185,7 @@ The same transcodes on the server with hardware acceleration set to None, to sho
 
 <br>
 
-Without hardware encoding, a transcode takes about twice as long and holds 78-90% of the CPU for its whole duration: 8 to 19 times the CPU time of QuickSync, on files that are probably worse. ***Transcoded downloads should require hardware acceleration.***
+Without hardware encoding, a transcode takes about twice as long and holds 78-90% of the CPU for its whole duration: 8 to 19 times the CPU time of QuickSync. ***Transcoded downloads should require hardware acceleration.***
 
 <br>
 
@@ -948,3 +948,4 @@ Points not yet decided, where a maintainer's view would settle the design:
 5. **Audio codec.** The audio is downmixed to stereo: AAC by default, or another codec, possibly chosen per tier? (See [7.2.1](#721-transcoding---download-api).)
 6. **A failed transcode.** `Prepare` returns `500 Internal Server Error` with state `failed`, as proposed, or `200 OK` with state `failed`, treating the failure as a reported state rather than a server error? (See [7.1.2](#712-download-api).)
 7. **Scheduled pre-transcode.** Which videos the task covers (every video, chosen libraries, or only those without a transcode), at which tiers (the default only, or all) and with which audio track, and whether its transcodes count towards the download transcode limit or run separately, one at a time like trickplay. (See [5.3.3](#533-scheduled-pre-transcode).)
+8. **Hardware acceleration.** Transcoded downloads are recommended only with hardware acceleration (see [4.2.2](#422-transcoding-results)). Should the setting that enables the feature be unavailable while Jellyfin's hardware acceleration is set to None, or should it only warn the admin?
