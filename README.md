@@ -570,6 +570,8 @@ The existing download route will require an `optimised=true` parameter, becoming
 
 With the feature on, the existing `Download` link calls `GET Items/{itemId}/Download?optimised=true`, and `Download Original` (when shown) calls the unchanged `GET Items/{itemId}/Download`. With the feature off, `Download` calls the unchanged route and `Download Original` is hidden.
 
+Transcoding adds an optional `audioStreamIndex` parameter to `Prepare` and to the optimised download (see [7.2.1](#721-transcoding---download-api)).
+
 <br>
 
 **Download behaviour**
@@ -627,7 +629,7 @@ All routes also return `401 Unauthorized`. The `Items/{itemId}/Download` routes 
 
 ### 7.2. Transcoding
 
-Transcoded files will include all existing subtitle files from the original video, alongside a single audio track (whichever is selected in the UI)
+Transcoded files will include all embedded subtitle tracks and chapters from the original video, alongside a single audio track: the one selected on the item's page, or if none is sent, the track the user would hear on playback (their default audio stream for that video). External subtitle files are not included in this phase.
 
 <br>
 
@@ -637,11 +639,11 @@ Transcoded files will include all existing subtitle files from the original vide
 
 A new *Prepare* route should be introduced for the *Prepare then Download* workflow: `Items/{itemId}/Download/Prepare`. It starts the transcode job, or joins a running one, and reports its state - ready, transcoding (with progress), or failed. Prepare returns a response immediately and is then polled (holding a download request open until the transcode finishes would exceed reverse-proxy and browser timeouts).
 
-`Prepare` should include the currently selected audio track ID as a query parameter (e.g. `audioStreamIndex=1`).
+`Prepare` should include the selected audio stream as a query parameter (e.g. `audioStreamIndex=1`). The parameter is optional: without it, the user's default audio stream for the video is used.
 
-Once `Prepare` returns `ready`, the client would send the download request along with the selected audio track ID: `GET Items/{itemId}/Download?optimised=true&audioStreamIndex=1`. If the optimised video file is not yet ready (does not exist, or isn't transcoded yet), the server will respond with `409 Conflict`.
+Once `Prepare` returns `ready`, the client would send the download request with the same audio stream: `GET Items/{itemId}/Download?optimised=true&audioStreamIndex=1`. If the optimised video file is not yet ready (does not exist, or isn't transcoded yet), the server will respond with `409 Conflict`.
 
-The file transcoded/returned will match the user's quality tier preference (or server default), the selected audio track downmixed to stereo (AAC by default) with no other audio, and all subtitle tracks from the video. 
+The file transcoded/returned will match the user's quality tier preference (or server default), the selected audio track downmixed to stereo (AAC by default) with no other audio, and all embedded subtitle tracks and chapters from the video.
 
 1. Client sends the request: `POST Items/{itemId}/Download/Prepare?audioStreamIndex=1`
     * Starts a job if a file doesn't exist, or joins an existing job if one is running.
