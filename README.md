@@ -805,6 +805,8 @@ The admin will be able to create quality tiers that include a display name and s
 
 Manually placed files should use the suffix as set in the UI.
 
+A fixed *no suffix* tier is always present, for optimised files named exactly as the source video (e.g. `Film (1986).mkv`). It shows that suffixes aren't needed when the admin only wants a single optimised version of each video. Its suffix is always empty and it cannot be deleted, but its name can be changed, as users see it when choosing their tier. Otherwise it is a tier like the others: it sits in the order (at the bottom by default), and users can choose it.
+
 <br>
 
 <p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
