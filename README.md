@@ -546,7 +546,15 @@ The following implementation details only reflect what is necessary for appraisa
 
 #### 7.1.1. Global settings screen
 
-A global settings screen will be created for server admins can enable this feature, define their tiers, set global optimised version locations (transcodes or manually placed), and determine if the downloads should use the existing link in the UI or a separate one. Admins would also enable being able to download the original file as-is.
+A global settings screen will be created for server admins:
+
+* A checkbox to enable/disable this whole feature - default off.
+  * When off, every route serves or describes the original. `Download?optimised=true` serves it, and `Prepare` and `MediaInfo` return a `200` with its media info and ETag, so an updated client never meets a 'feature off' error.
+* A global set of locations used to store optimised files.
+  * These do not take priority over library settings locations.
+* A checkbox to show a "Download Original" link in the UI.
+  * The plain route (`GET Items/{itemId}/Download`) is unchanged and still driven by the existing per-user "Allow media downloading" permission.
+  * Default is on. Updated clients would have the existing `Download` link as well as `Download Original` while the feature is on.
 
 <br>
 
