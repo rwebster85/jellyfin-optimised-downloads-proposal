@@ -38,6 +38,7 @@ Provide clients with the ability to download videos from the library in lower qu
   - [7.1. Common](#71-common)
     - [7.1.1. Global settings screen](#711-global-settings-screen)
     - [7.1.2. Download API](#712-download-api)
+    - [ETag](#etag)
   - [7.2. Transcoding](#72-transcoding)
     - [7.2.1. Transcoding - Download API](#721-transcoding---download-api)
     - [7.2.2. Transcoding - Global Settings](#722-transcoding---global-settings)
@@ -634,6 +635,18 @@ An older server without this route returns `404`: clients treat that as the feat
 <br>
 
 All routes also return `401 Unauthorized`. The `Items/{itemId}/Download` routes also return `403 Forbidden`, as the existing download route does.
+
+<br>
+
+<p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
+
+#### ETag
+
+The ETag identifies the exact file being served, so a client can tell whether it changed between describing it and downloading it. It is computed on demand, in the same way for a transcode, a curated file and the original:
+
+`ETag = "SHA-256(<file name with extension>|<size in bytes>|<last modified, UTC ticks>)"`
+
+It is a strong ETag (quoted, no W/), as If-Match requires. Symlinks are resolved first, as the existing download route already does. ASP.NET's PhysicalFile takes the ETag and itself answers If-Match with 412 and If-Range with 206. A replacement with the same name, size and modified time is not detected, which in practice only happens when it is the same file.
 
 <br>
 
