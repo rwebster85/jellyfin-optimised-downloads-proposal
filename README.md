@@ -46,6 +46,7 @@ Provide clients with the ability to download videos from the library in lower qu
     - [7.3.1. Manual Curation - Download API](#731-manual-curation---download-api)
     - [7.3.2. Manual Curation - Global Settings](#732-manual-curation---global-settings)
     - [7.3.3. Manual Curation - Directory Structure](#733-manual-curation---directory-structure)
+  - [7.4. Open Questions](#74-open-questions)
 
 
 ## 1. Motivation
@@ -563,6 +564,12 @@ Settings and tiers are stored in the server's XML configuration, as other server
 
 <br>
 
+**Permissions**
+
+An optimised download needs the existing "Allow media downloading" permission, as today. Transcoding also needs "Allow video playback that requires transcoding". A user without it is treated as if the feature were off: `Downloads/Behaviour` returns `enabled: false` for them and the original is served, including when a transcode of that video already exists. Manual Curation encodes nothing, so it needs only the download permission. Alternatives are the download permission alone, or a new permission for optimised downloads.
+
+<br>
+
 <p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
 
 #### 7.1.2. Download API
@@ -596,7 +603,7 @@ Updated clients learn which links to show from a new route, `GET Downloads/Behav
 }
 ```
 
-* `enabled` - Whether the feature is on (see [7.1.1](#711-global-settings-screen)).
+* `enabled` - Whether the feature is on for this user (see [7.1.1](#711-global-settings-screen)).
 * `showOriginalLink` - Whether to show `Download Original`.
 * `tiers` - The quality tiers in the admin's order, the first being the server default. Clients use this list for the user's tier preference.
 
@@ -867,3 +874,18 @@ If the admin includes tier-appended files, the tier matching the preference woul
     ├── Film (1986) - High.mkv
     └── Film (1986) - Standard.mkv
 ```
+
+<br>
+
+---
+
+### 7.4. Open Questions
+
+Points not yet decided, where a maintainer's view would settle the design:
+
+1. **Tier lists.** If both options are implemented, do Transcoding and Manual Curation share one list of tiers, or keep two? (See [7.3.2](#732-manual-curation---global-settings).)
+2. **Tier storage.** XML configuration, as proposed, or the database, particularly if transcodes are later recorded there? (See [7.1.1](#711-global-settings-screen).)
+3. **Permission for transcoded downloads.** "Allow video playback that requires transcoding", as proposed, the download permission alone, or a new permission? (See [7.1.1](#711-global-settings-screen).)
+4. **Users without that permission.** Served the original, as proposed, or refused? (See [7.1.1](#711-global-settings-screen).)
+5. **Audio codec.** The audio is downmixed to stereo: AAC by default, or another codec, possibly chosen per tier? (See [7.2.1](#721-transcoding---download-api).)
+6. **A failed transcode.** `Prepare` returns `500 Internal Server Error` with state `failed`, as proposed, or `200 OK` with state `failed`, treating the failure as a reported state rather than a server error? (See [7.1.2](#712-download-api).)
