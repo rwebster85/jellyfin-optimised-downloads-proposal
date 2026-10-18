@@ -1,5 +1,4 @@
-
-Proposal: Optimised Video Downloads <!-- omit from toc -->
+# Proposal: Optimised Video Downloads <!-- omit from toc -->
 
 Provide clients with the ability to download videos from the library in lower quality, smaller file sizes.
 
