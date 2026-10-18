@@ -568,10 +568,42 @@ Before downloading, clients that store media info for offline playback (Android)
 
 The existing download route will require an `optimised=true` parameter, becoming `GET Items/{itemId}/Download?optimised=true`. For backwards compatibility, without the new query parameter the behaviour of `GET Items/{itemId}/Download` remains unchanged: the original file will be served, in line with current behaviour.
 
+With the feature on, the existing `Download` link calls `GET Items/{itemId}/Download?optimised=true`, and `Download Original` (when shown) calls the unchanged `GET Items/{itemId}/Download`. With the feature off, `Download` calls the unchanged route and `Download Original` is hidden.
+
+<br>
+
+**Download behaviour**
+
+Updated clients learn which links to show from a new route, `GET Downloads/Behaviour`. Whether a user may download at all is already given per item by `CanDownload`, from the per-user "Allow media downloading" permission, so this route only tells clients which links to show. It is available to any signed-in user, and returns only what clients need: no storage locations, and no tier encoding settings.
+
+<br>
+
+```json
+{
+  "enabled": true,
+  "showOriginalLink": true,
+  "tiers": [
+    { "id": "8d3a6f1e7c4b4a2d9e5f1b0c2d3e4f50", "name": "High (1080p)" },
+    { "id": "1f0e2d3c4b5a69788796a5b4c3d2e1f0", "name": "Standard (720p)" }
+  ]
+}
+```
+
+* `enabled` - Whether the feature is on (see [7.1.1](#711-global-settings-screen)).
+* `showOriginalLink` - Whether to show `Download Original`.
+* `tiers` - The quality tiers in the admin's order, the first being the server default. Clients use this list for the user's tier preference.
+
+<br>
+
+An older server without this route returns `404`: clients treat that as the feature being off, and show only the existing `Download` link.
+
+<br>
+
 **Response codes**
 
 | Route | Code | Meaning |
 |---|---|---|
+| `GET Downloads/Behaviour` | `200 OK` | Whether the feature is on, whether to show `Download Original`, and the tiers. |
 | `POST Items/{itemId}/Download/Prepare` <br> *(Transcoding)* | `200 OK` | Ready. Body: media info of the file, and its ETag. |
 | | `202 Accepted` | Transcoding, or queued. Body: progress. A `Retry-After` header suggests the poll interval. |
 | | `500 Internal Server Error` | The transcode failed. Body: state `failed`. |
@@ -587,7 +619,7 @@ The existing download route will require an `optimised=true` parameter, becoming
 
 <br>
 
-All routes also return `401 Unauthorized` and `403 Forbidden`, as the existing download route does.
+All routes also return `401 Unauthorized`. The `Items/{itemId}/Download` routes also return `403 Forbidden`, as the existing download route does.
 
 <br>
 
@@ -650,13 +682,19 @@ The unpredictability of the required storage space for as-yet-to-be transcoded f
 
 If all locations are full, `Prepare` will return `507 Insufficient Storage`.
 
+<br>
+
 **Locations Example**
 
 Given a `Films` library, that library's settings screen would include an element for selecting multiple locations for storing transcodes. Given a `TV Shows` library, that library's settings screen would have its own. On the Downloads settings screen, a separate list of locations can be set. This allows server admins to have distinct locations for individual libraries, use a single global set of locations, or a mix of both.
 
+<br>
+
 **Finding an Existing Transcode**
 
 The transcode's path relative to a location is fixed by its video version, tier, tier version and audio track (see *Filename/Directory Structure* below for the layout), so no searching is needed: the server checks for that path in each of the library's locations, then each global location, and serves the first match that has its finished sidecar. A location that is unavailable is skipped.
+
+<br>
 
 **Filename/Directory Structure**
 
