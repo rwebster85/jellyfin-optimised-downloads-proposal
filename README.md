@@ -449,7 +449,7 @@ Both transcoding and manual curation would share some design elements.
 
 **Notes**
 
-* Original file being served when selected or no applicable version available.
+* Original file being served when selected, no applicable version available, or the feature is off.
 
 <br>
 
