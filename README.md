@@ -49,6 +49,7 @@ Provide clients with the ability to download videos from the library in lower qu
     - [7.3.2. Manual Curation - Global Settings](#732-manual-curation---global-settings)
     - [7.3.3. Manual Curation - Directory Structure](#733-manual-curation---directory-structure)
   - [7.4. Open Questions](#74-open-questions)
+- [8. Future Phases](#8-future-phases)
 
 
 ## 1. Motivation
@@ -323,7 +324,7 @@ Change nothing about the existing system and rely on server admins to make use o
 
 Based on the research and results of the MVP and spike, **[Option A: Transcoding](#option-a)** is the clear choice for friction vs value for server admins. It needs less work than manual curation, scales better, and integrates well with the existing systems in Jellyfin.
 
-However, Options A and B both provide value for different use-cases. As such my suggestion would be to implement both options together in phases. [Option A: Transcoding](#option-a) should be implemented in Phase 1, and [Option B: Manual Curation](#option-b) in Phase 2 if there is an appetite for it. Additional phases could also take place to refine this new feature even further.
+However, Options A and B both provide value for different use-cases. As such my suggestion would be to implement both options together in phases. [Option A: Transcoding](#option-a) should be implemented in Phase 1, and [Option B: Manual Curation](#option-b) in Phase 2 if there is an appetite for it. Additional phases could also take place to refine this new feature even further (see [section 8](#8-future-phases)).
 
 [Option C: Do Nothing](#option-c) remains available to admins today, but leaves the request unaddressed. Option B is essentially Option C with the server choosing the right version for each user based on their preferences, and keeping the smaller files out of the playback versions list.
 
@@ -949,3 +950,15 @@ Points not yet decided, where a maintainer's view would settle the design:
 6. **A failed transcode.** `Prepare` returns `500 Internal Server Error` with state `failed`, as proposed, or `200 OK` with state `failed`, treating the failure as a reported state rather than a server error? (See [7.1.2](#712-download-api).)
 7. **Scheduled pre-transcode.** Which videos the task covers (every video, chosen libraries, or only those without a transcode), at which tiers (the default only, or all) and with which audio track, and whether its transcodes count towards the download transcode limit or run separately, one at a time like trickplay. (See [5.3.3](#533-scheduled-pre-transcode).)
 8. **Hardware acceleration.** Transcoded downloads are recommended only with hardware acceleration (see [4.2.2](#422-transcoding-results)). Should the setting that enables the feature be unavailable while Jellyfin's hardware acceleration is set to None, or should it only warn the admin?
+
+<br>
+
+## 8. Future Phases
+
+Beyond Phase 1 (Transcoding) and Phase 2 (Manual Curation), later phases could refine the feature further:
+
+* **Total transcode storage.** A cap on the space transcodes may use in all, removing the least recently used when it is reached.
+* **External subtitle files.** Include subtitle files kept beside the video in the transcode, as well as its embedded tracks.
+* **Transcode records in the database.** Track each transcode in a table rather than in side-car files, which would also suit storing tiers there.
+* **"Ask each time".** A download preference that asks the user which tier to download, showing each one's size or estimated size.
+* **Regenerate transcodes.** A checkbox in Refresh Metadata to regenerate an item's transcodes.
