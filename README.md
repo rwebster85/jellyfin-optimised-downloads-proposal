@@ -87,7 +87,7 @@ What follows is an appraisal of three potential solutions. The two change option
 
 * Simplified end-user experience
 * Multiple Quality Tiers
-    * Should include options for the server admin to set quality tiers with names (e.g. "High", "Standard") and resolution (1080p, 720p) for better end user UX. [Option A](#option-a) should also include bitrate targets (3Mbps, 800Kbps) for transcoding.
+    * Should include options for the server admin to set quality tiers with names (e.g. "High", "Standard") and resolution (1080p, 720p) for better end user UX. [Option A](#42-option-a-transcoding) should also include bitrate targets (3Mbps, 800Kbps) for transcoding.
 * Multiple optimised download storage locations
     * Admins should be able to select multiple locations for either transcode download or for manual curation file storage.
 
@@ -167,9 +167,10 @@ The same transcodes on the server with hardware acceleration set to None, to sho
 
 *Results Notes*
 
-* One full-film run each. The QuickSync H.264 runs were repeated to measure CPU, and matched the speeds above.
+* One full-film run each. The QuickSync H.264 runs were repeated to measure CPU, and were within 3% of the speeds above.
 * CPU is the share of all 12 threads busy, sampled every 5 seconds. Peak load is the highest 1-minute load average during the run.
 * Software output usually falls below the 750 kbps cap, as Jellyfin's CRF decides the bitrate, so those files are smaller. Quality was not compared.
+* Output figures include the 192 kbps stereo AAC audio, so the 750 kbps video cap shows as about 940 kbps.
 
 <br>
 
@@ -207,7 +208,7 @@ The spike first streamed the transcode to the client as it was written. Testing 
 
 **Conclusion**
 
-Files should be transcoded in full before they are served (see [5.3.1](#transcode-download)). The cost is that the first download of a video at a tier and audio track waits for the transcode: 1.5 to 3 minutes for a 1080p film, and 5 to 10 minutes for a 4K HDR one, on the hardware above.
+Files should be transcoded in full before they are served (see [5.3.1](#531-transcode-process)). The cost is that the first download of a video at a tier and audio track waits for the transcode: 1.5 to 3 minutes for a 1080p film, and 5 to 10 minutes for a 4K HDR one, on the hardware above.
 
 <br>
 
@@ -322,11 +323,11 @@ Change nothing about the existing system and rely on server admins to make use o
 
 ### 4.5. Recommended Solution
 
-Based on the research and results of the MVP and spike, **[Option A: Transcoding](#option-a)** is the clear choice for friction vs value for server admins. It needs less work than manual curation, scales better, and integrates well with the existing systems in Jellyfin.
+Based on the research and results of the MVP and spike, **[Option A: Transcoding](#42-option-a-transcoding)** is the clear choice for friction vs value for server admins. It needs less work than manual curation, scales better, and integrates well with the existing systems in Jellyfin.
 
-However, Options A and B both provide value for different use-cases. As such my suggestion would be to implement both options together in phases. [Option A: Transcoding](#option-a) should be implemented in Phase 1, and [Option B: Manual Curation](#option-b) in Phase 2 if there is an appetite for it. Additional phases could also take place to refine this new feature even further (see [section 8](#8-future-phases)).
+However, Options A and B both provide value for different use-cases. As such my suggestion would be to implement both options together in phases. [Option A: Transcoding](#42-option-a-transcoding) should be implemented in Phase 1, and [Option B: Manual Curation](#43-option-b-manual-curation) in Phase 2 if there is an appetite for it. Additional phases could also take place to refine this new feature even further (see [section 8](#8-future-phases)).
 
-[Option C: Do Nothing](#option-c) remains available to admins today, but leaves the request unaddressed. Option B is essentially Option C with the server choosing the right version for each user based on their preferences, and keeping the smaller files out of the playback versions list.
+[Option C: Do Nothing](#44-option-c-do-nothing) remains available to admins today, but leaves the request unaddressed. Option B is essentially Option C with the server choosing the right version for each user based on their preferences, and keeping the smaller files out of the playback versions list.
 
 <br>
 
