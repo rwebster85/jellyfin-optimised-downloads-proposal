@@ -551,7 +551,7 @@ The following implementation details only reflect what is necessary for appraisa
 A global settings screen will be created for server admins:
 
 * A checkbox to enable/disable this whole feature - default off.
-  * When off, every route serves or describes the original. `Download?optimised=true` serves it, and `Prepare` and `MediaInfo` return a `200` with its media info and ETag, so an updated client never meets a 'feature off' error.
+  * When off, every route serves or describes the original. `Download?optimized=true` serves it, and `Prepare` and `MediaInfo` return a `200` with its media info and ETag, so an updated client never meets a 'feature off' error.
 * A global set of locations used to store optimised files.
   * These do not take priority over library settings locations.
 * A checkbox to show a "Download Original" link in the UI.
@@ -578,9 +578,9 @@ All clients that support downloading will need to be updated for either Transcod
 
 Before downloading, clients that store media info for offline playback (Android) get a description of the file to be served, and its ETag, from `Prepare`'s ready response (Transcoding) or a new `Items/{itemId}/Download/MediaInfo` route (Manual Curation). The client sends that ETag with the download (`If-Match`). If the file has changed in between, the server refuses with `412` and the client starts again. Clients that hand the file to the browser or operating system (Web) skip this, and send the download without `If-Match`.
 
-The existing download route will require an `optimised=true` parameter, becoming `GET Items/{itemId}/Download?optimised=true`. For backwards compatibility, without the new query parameter the behaviour of `GET Items/{itemId}/Download` remains unchanged: the original file will be served, in line with current behaviour.
+The existing download route will require an `optimized=true` parameter, becoming `GET Items/{itemId}/Download?optimized=true`. For backwards compatibility, without the new query parameter the behaviour of `GET Items/{itemId}/Download` remains unchanged: the original file will be served, in line with current behaviour.
 
-With the feature on, the existing `Download` link calls `GET Items/{itemId}/Download?optimised=true`, and `Download Original` (when shown) calls the unchanged `GET Items/{itemId}/Download`. With the feature off, `Download` calls the unchanged route and `Download Original` is hidden.
+With the feature on, the existing `Download` link calls `GET Items/{itemId}/Download?optimized=true`, and `Download Original` (when shown) calls the unchanged `GET Items/{itemId}/Download`. With the feature off, `Download` calls the unchanged route and `Download Original` is hidden.
 
 Transcoding adds an optional `audioStreamIndex` parameter to `Prepare` and to the optimised download (see [7.2.1](#721-transcoding---download-api)).
 
@@ -625,7 +625,7 @@ An older server without this route returns `404`: clients treat that as the feat
 | | `404 Not Found` | Item not found, or not a downloadable video. |
 | `GET Items/{itemId}/Download/MediaInfo` <br> *(Manual Curation)* | `200 OK` | Media info of the file that would be served (the optimised copy, or the original if there is none), and its ETag. |
 | | `404 Not Found` | Item not found. |
-| `GET Items/{itemId}/Download?optimised=true` | `200 OK` | The file, with its `ETag` header. |
+| `GET Items/{itemId}/Download?optimized=true` | `200 OK` | The file, with its `ETag` header. |
 | | `206 Partial Content` | A range request, for resuming. |
 | | `409 Conflict` | *(Transcoding)* No finished copy yet: call `Prepare`. |
 | | `412 Precondition Failed` | The `If-Match` ETag does not match: the file has changed, start again. |
@@ -653,7 +653,7 @@ A new *Prepare* route should be introduced for the *Prepare then Download* workf
 
 `Prepare` should include the selected audio stream as a query parameter (e.g. `audioStreamIndex=1`). The parameter is optional: without it, the user's default audio stream for the video is used.
 
-Once `Prepare` returns `ready`, the client would send the download request with the same audio stream: `GET Items/{itemId}/Download?optimised=true&audioStreamIndex=1`. If the optimised video file is not yet ready (does not exist, or isn't transcoded yet), the server will respond with `409 Conflict`.
+Once `Prepare` returns `ready`, the client would send the download request with the same audio stream: `GET Items/{itemId}/Download?optimized=true&audioStreamIndex=1`. If the optimised video file is not yet ready (does not exist, or isn't transcoded yet), the server will respond with `409 Conflict`.
 
 The file transcoded/returned will match the user's quality tier preference (or server default), the selected audio track downmixed to stereo (AAC by default) with no other audio, and all embedded subtitle tracks and chapters from the video.
 
@@ -667,7 +667,7 @@ Only a set number of download transcodes run at once (see [7.2.2](#722-transcodi
     * Returns `failed` on error
 2. Client polls `Prepare` until it returns `ready` or `failed`
 3. When `Prepare` returns `ready` it includes the media info describing the video, and the ETag.
-4. Client sends the download request `GET Items/{itemId}/Download?optimised=true&audioStreamIndex=1` with `If-Match: <ETag from step 3>`. If the server responds with a `412` (the file changed), or a `409` (not ready), the client returns to step 1.
+4. Client sends the download request `GET Items/{itemId}/Download?optimized=true&audioStreamIndex=1` with `If-Match: <ETag from step 3>`. If the server responds with a `412` (the file changed), or a `409` (not ready), the client returns to step 1.
 
 <br>
 
@@ -803,12 +803,12 @@ Example:
 
 #### 7.3.1. Manual Curation - Download API
 
-Manual Curation uses the same links as Transcoding (see [7.1.2](#712-download-api)): the existing `Download` link requests `GET Items/{itemId}/Download?optimised=true`, and `Download Original` (when shown) the unchanged route. No `Prepare` step is needed, as curated files already exist.
+Manual Curation uses the same links as Transcoding (see [7.1.2](#712-download-api)): the existing `Download` link requests `GET Items/{itemId}/Download?optimized=true`, and `Download Original` (when shown) the unchanged route. No `Prepare` step is needed, as curated files already exist.
 
 The file returned will match the user's quality tier preference (or server default), or if no optimised file exists for the item, the original is served.
 
 1. Client calls `GET Items/{itemId}/Download/MediaInfo`, which returns the description of the file to be served (the optimised copy, or the original if there is none), and its ETag.
-2. Client sends the download request `GET Items/{itemId}/Download?optimised=true` with `If-Match: <ETag from step 1>`. If the server responds with a `412` (the file changed), the client returns to step 1.
+2. Client sends the download request `GET Items/{itemId}/Download?optimized=true` with `If-Match: <ETag from step 1>`. If the server responds with a `412` (the file changed), the client returns to step 1.
 
 <br>
 
