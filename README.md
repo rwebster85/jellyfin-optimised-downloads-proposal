@@ -54,6 +54,7 @@ Provide clients with the ability to download videos from the library in lower qu
   - [7.4. Open Questions](#74-open-questions)
 - [8. Future Phases](#8-future-phases)
 
+<br>
 
 ## 1. Motivation
 
