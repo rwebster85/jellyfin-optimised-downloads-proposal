@@ -823,7 +823,13 @@ Note: If both options are implemented, whether Transcoding and Manual Curation s
 
 The admin should have the ability to select multiple storage locations for optimised files. The UI would re-use the folder picker used by the Library editor. The first location is primary, second is secondary etc.
 
-The folder layout would mirror the source folder structure, and the download lookup would perform a file system search to locate an optimised video. The Tier suffix the admin sets in the dashboard would be appended to the video filename. Files are named `<source file name> - <suffix>.<ext>`, and names are matched case-insensitively on every operating system, so `Film (1986) - High.mkv` matches the suffix `high`. If tiered videos are found, but not matching the user's preference (or server default), they would be served the next available per the ordering. If no files are found matching the user's preferred tier (or server default), but there is a single video file found, that one would be served.
+The folder layout would mirror the source folder structure, and the download lookup would perform a file system search to locate an optimised video. The Tier suffix the admin sets in the dashboard would be appended to the video filename. Files are named `<source file name> - <suffix>.<ext>`, and names are matched case-insensitively on every operating system, so `Film (1986) - High.mkv` matches the suffix `high`. If tiered videos are found, but not matching the user's preference (or server default), they would be served the next available per the ordering. The *no suffix* tier (see [7.3.2](#732-manual-curation---global-settings)) has no suffix to look for, so it matches the first of:
+
+1. A file named exactly as the source video, e.g. `Film (1986).mkv`.
+2. A file whose name starts with the source video's name followed by ` - `, when exactly one does, e.g. `Film (1986) - Extended - 720p.mkv` for the source `Film (1986) - Extended.mkv`, where `720p` is not a defined suffix. If the library holds several versions whose names start the same way (`Film (1986).mkv` and `Film (1986) - Extended.mkv`), the version with the longest matching name claims the file, so each cut is served its own copy and never another cut's.
+3. The only video in the folder, when there is just one.
+
+If no tier matches, the original is served.
 
 For example, a movie might be located in a library like so:
 
