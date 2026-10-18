@@ -559,6 +559,10 @@ A global settings screen will be created for server admins:
 
 <br>
 
+Settings and tiers are stored in the server's XML configuration, as other server settings are. Storing tiers in the database instead is open to discussion, and may be preferable if we decide to store records of transcode files in the DB (not part of this proposal but potentially desirable).
+
+<br>
+
 <p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
 
 #### 7.1.2. Download API
@@ -807,6 +811,8 @@ Manually placed files should use the suffix as set in the UI.
 
 A fixed *no suffix* tier is always present, for optimised files named exactly as the source video (e.g. `Film (1986).mkv`). It shows that suffixes aren't needed when the admin only wants a single optimised version of each video. Its suffix is always empty and it cannot be deleted, but its name can be changed, as users see it when choosing their tier. Otherwise it is a tier like the others: it sits in the order (at the bottom by default), and users can choose it.
 
+Note: If both options are implemented, whether Transcoding and Manual Curation share one list of tiers (each tier carrying the fields its option needs) or keep two separate lists is open to discussion.
+
 <br>
 
 <p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
@@ -817,7 +823,7 @@ A fixed *no suffix* tier is always present, for optimised files named exactly as
 
 The admin should have the ability to select multiple storage locations for optimised files. The UI would re-use the folder picker used by the Library editor. The first location is primary, second is secondary etc.
 
-The folder layout would mirror the source folder structure, and the download lookup would perform a file system search to locate an optimised video. The Tier suffix the admin sets in the dashboard would be appended to the video filename. If tiered videos are found, but not matching the user's preference (or server default), they would be served the next available per the ordering. If no files are found matching the user's preferred tier (or server default), but there is a single video file found, that one would be served.
+The folder layout would mirror the source folder structure, and the download lookup would perform a file system search to locate an optimised video. The Tier suffix the admin sets in the dashboard would be appended to the video filename. Files are named `<source file name> - <suffix>.<ext>`, and names are matched case-insensitively on every operating system, so `Film (1986) - High.mkv` matches the suffix `high`. If tiered videos are found, but not matching the user's preference (or server default), they would be served the next available per the ordering. If no files are found matching the user's preferred tier (or server default), but there is a single video file found, that one would be served.
 
 For example, a movie might be located in a library like so:
 
