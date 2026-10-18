@@ -1,54 +1,51 @@
-<!-- TOC ignore:true -->
-# Proposal: Optimised Video Downloads <a id="proposal"></a>
+
+# 1. Proposal: Optimised Video Downloads <!-- omit from toc -->
 
 Provide clients with the ability to download videos from the library in lower quality, smaller file sizes.
 
 ---
 
-<!-- TOC ignore:true -->
-**Table of Contents** <a id="toc"></a>
-
-<!-- TOC depthfrom:2 depthto:4 orderedlist:true -->
+## Table of Contents <!-- omit from toc -->
 
 - [1. Motivation](#1-motivation)
 - [2. Constraints](#2-constraints)
 - [3. Considerations](#3-considerations)
 - [4. Proposed Options](#4-proposed-options)
-    - [4.1. Common concepts](#41-common-concepts)
-    - [4.2. Option A: Transcoding](#42-option-a-transcoding)
-        - [4.2.1. Transcoding Spike](#421-transcoding-spike)
-        - [4.2.2. Transcoding Results](#422-transcoding-results)
-        - [4.2.3. Pros & Cons](#423-pros--cons)
-    - [4.3. Option B: Manual Curation](#43-option-b-manual-curation)
-        - [4.3.1. Manual Curation MVP](#431-manual-curation-mvp)
-        - [4.3.2. Pros & Cons](#432-pros--cons)
-    - [4.4. Option C: Do Nothing](#44-option-c-do-nothing)
-        - [4.4.1. Pros & Cons](#441-pros--cons)
-    - [4.5. Recommended Solution](#45-recommended-solution)
+  - [4.1. Common concepts](#41-common-concepts)
+  - [4.2. Option A: Transcoding](#42-option-a-transcoding)
+    - [4.2.1. Transcoding Spike](#421-transcoding-spike)
+    - [4.2.2. Transcoding Results](#422-transcoding-results)
+    - [4.2.3. Pros \& Cons](#423-pros--cons)
+  - [4.3. Option B: Manual Curation](#43-option-b-manual-curation)
+    - [4.3.1. Manual Curation MVP](#431-manual-curation-mvp)
+    - [4.3.2. Pros \& Cons](#432-pros--cons)
+  - [4.4. Option C: Do Nothing](#44-option-c-do-nothing)
+    - [4.4.1. Pros \& Cons](#441-pros--cons)
+  - [4.5. Recommended Solution](#45-recommended-solution)
 - [5. High-Level Design](#5-high-level-design)
-    - [5.1. ArchiMate Notation](#51-archimate-notation)
-    - [5.2. Common Designs](#52-common-designs)
-        - [5.2.1. Service entry point](#521-service-entry-point)
-        - [5.2.2. Downloadable file interaction](#522-downloadable-file-interaction)
-        - [5.2.3. Settings interaction](#523-settings-interaction)
-        - [5.2.4. Full common design](#524-full-common-design)
-    - [5.3. Transcoding](#53-transcoding)
-        - [5.3.1. Transcode -> Download process](#531-transcode---download-process)
-        - [5.3.2. Transcode Cleanup](#532-transcode-cleanup)
-    - [5.4. Manual Curation](#54-manual-curation)
-- [6. Implementation](#6-implementation)
-    - [6.1. Common](#61-common)
-        - [6.1.1. Download API](#611-download-api)
-    - [6.2. Transcoding](#62-transcoding)
-        - [6.2.1. Download API](#621-download-api)
-        - [6.2.2. Directory Structure](#622-directory-structure)
-    - [6.3. Manual Curation](#63-manual-curation)
-        - [6.3.1. Download API](#631-download-api)
-        - [6.3.2. Directory Structure](#632-directory-structure)
+  - [5.1. ArchiMate Notation](#51-archimate-notation)
+  - [5.2. Common Designs](#52-common-designs)
+    - [5.2.1. Service entry point](#521-service-entry-point)
+    - [5.2.2. Downloadable file interaction](#522-downloadable-file-interaction)
+    - [5.2.3. Settings interaction](#523-settings-interaction)
+    - [5.2.4. Full common design](#524-full-common-design)
+  - [5.3. Transcoding](#53-transcoding)
+    - [5.3.1. Transcode -\> Download process](#531-transcode---download-process)
+    - [5.3.2. Transcode Cleanup](#532-transcode-cleanup)
+  - [5.4. Manual Curation](#54-manual-curation)
+- [6. Concrete Designs](#6-concrete-designs)
+- [7. Implementation](#7-implementation)
+  - [7.1. Common](#71-common)
+    - [7.1.1. Download API](#711-download-api)
+  - [7.2. Transcoding](#72-transcoding)
+    - [7.2.1. Download API](#721-download-api)
+    - [7.2.2. Directory Structure](#722-directory-structure)
+  - [7.3. Manual Curation](#73-manual-curation)
+    - [7.3.1. Download API](#731-download-api)
+    - [7.3.2. Directory Structure](#732-directory-structure)
 
-<!-- /TOC -->
 
-## 1. Motivation <a id="motivation"></a>
+## 1. Motivation
 
 Some Jellyfin clients provide the ability to download media for offline play, but in their original formats and filesizes.
 
@@ -56,7 +53,7 @@ Optimised downloading enables downloading media for offline/travel consumption b
 
 <br>
 
-## 2. Constraints <a id="constraints"></a>
+## 2. Constraints
 
 - Video files can come in a variety of container/codec configurations.
 - Subtitles can either be embedded or external, in a variety of formats.
@@ -66,7 +63,7 @@ Optimised downloading enables downloading media for offline/travel consumption b
 
 <br>
 
-## 3. Considerations <a id="considerations"></a>
+## 3. Considerations
 
 - Multiple options for server admins could be made available and are not exclusive.
 - Options and functionality should be both simple and valuable.
@@ -75,11 +72,11 @@ Optimised downloading enables downloading media for offline/travel consumption b
 
 <br>
 
-## 4. Proposed Options <a id="options"></a>
+## 4. Proposed Options
 
 What follows is an appraisal of three potential solutions. The two change options could be implemented alongside eachother, or only one of them selected. Conceptually they both share these core concepts:
 
-### 4.1. Common concepts <a id="common"></a>
+### 4.1. Common concepts
 
 - Simplified end-user experience
 - Multiple Quality Tiers
@@ -91,7 +88,7 @@ What follows is an appraisal of three potential solutions. The two change option
 
 ---
 
-### 4.2. Option A: Transcoding <a id="option-a"></a>
+### 4.2. Option A: Transcoding
 
 Client download requests use server transcoding according to download and user preference quality options, to generate a lower-quality, smaller filesize copy. This will be served to the client in-place of the full-size original. Optimised files are stored for future download requests and regenerated when needed.
 
@@ -191,7 +188,7 @@ Files should be transcoded in full before they are served (see [5.3.1](#transcod
 
 ---
 
-### 4.3. Option B: Manual Curation <a id="option-b"></a>
+### 4.3. Option B: Manual Curation
 
 Server admins generate/source their own lower-quality files according to their tastes, and store them on the server for the download system to serve. These files would live outside of the library, pointed to in settings, and their directory structure would mirror the source folder structure.
 
@@ -264,7 +261,7 @@ Encoding to a higher-quality tier costs far more than Jellyfin's on-demand trans
 
 ---
 
-### 4.4. Option C: Do Nothing <a id="option-c"></a>
+### 4.4. Option C: Do Nothing
 
 Change nothing about the existing system and rely on server admins to make use of the existing `version` behaviour by supplying lower-quality, smaller videos alongside the existing library ones. Users have the option of downloading whichever version they want, but must be mindful of the file sizes (shown in the Media Info page of the item's menu).
 
@@ -285,7 +282,7 @@ Change nothing about the existing system and rely on server admins to make use o
 
 ---
 
-### 4.5. Recommended Solution <a id="recommendation"></a>
+### 4.5. Recommended Solution
 
 Based on the research and results of the MVP and spike, **[Option A: Transcoding](#option-a)** is the clear choice for friction vs value for server admins. It needs less work than manual curation, scales better, and integrates well with the existing systems in Jellyfin.
 
@@ -295,7 +292,7 @@ However, Options A and B both provide value for different use-cases. As such my 
 
 <br>
 
-## 5. High-Level Design <a id="hld"></a>
+## 5. High-Level Design
 
 Until an option to the proposed solution is agreed, what follows will be a high-level logical design focused on system and object interactions. When an option is agreed, low-level concrete designs will be produced for the implementation.
 
@@ -465,7 +462,7 @@ Definitions:
 
 <p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
 
-#### 5.3.1. Transcode -> Download process <a id="transcode-download"></a>
+#### 5.3.1. Transcode -> Download process
 
 1. Download locations are configured by the admin in settings, or the server default location used.
 2. User download request is captured by the controller.
@@ -532,13 +529,19 @@ Definitions:
 
 <br>
 
-## 6. Implementation
+## 6. Concrete Designs
+
+TBD
+
+<br>
+
+## 7. Implementation
 
 The following implementation details only reflect what is necessary for appraisal of the options in this proposal. As with the HLD, once an option has been agreed, additional concrete implementation details will be provided.
 
-### 6.1. Common
+### 7.1. Common
 
-#### 6.1.1. Download API
+#### 7.1.1. Download API
 
 All clients that support downloading will need to be updated for either Transcoding or Manual Curation.
 
@@ -570,9 +573,9 @@ All routes also return `401 Unauthorized` and `403 Forbidden`, as the existing d
 
 ---
 
-### 6.2. Transcoding
+### 7.2. Transcoding
 
-#### 6.2.1. Download API
+#### 7.2.1. Download API
 
 A new *Prepare* route should be introduced for the *Prepare then Download* workflow: `Items/{itemId}/Download/Prepare`. It starts the transcode job, or joins a running one, and reports its state - ready, transcoding (with progress), or failed. Prepare returns a response immediately and is then polled (holding a download request open until the transcode finishes would exceed reverse-proxy and browser timeouts).
 
@@ -593,7 +596,7 @@ The file transcoded/returned will match the user's quality tier preference (or s
 
 <p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
 
-#### 6.2.2. Directory Structure
+#### 7.2.2. Directory Structure
 
 **Transcode Locations**
 
@@ -640,9 +643,9 @@ Example:
 
 ---
 
-### 6.3. Manual Curation
+### 7.3. Manual Curation
 
-#### 6.3.1. Download API
+#### 7.3.1. Download API
 
 All requests could go through the Download API (`GET Items/{itemId}/Download?optimised=true`) - the equivalent of the `Substitute` option in my MVP for updated clients (see <a href="https://github.com/rwebster85/jellyfin/blob/transcode-downloads/MediaBrowser.Model/Configuration/DownloadBehaviour.cs">DownloadBehaviour.cs</a>), or a new `Items/{itemId}/Download/Optimised` route using a secondary link. In the latter, the original Download button would simply serve the original file. This proposal suggests the former, which would be the better option from a UX perspective.
 
@@ -655,7 +658,7 @@ The file returned will match the user's quality tier preference (or server defau
 
 <p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
 
-#### 6.3.2. Directory Structure
+#### 7.3.2. Directory Structure
 
 **Video Locations**
 
