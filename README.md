@@ -289,7 +289,7 @@ Change nothing about the existing system and rely on server admins to make use o
 
 Based on the research and results of the MVP and spike, **[Option A: Transcoding](#option-a)** is the clear choice for friction vs value for server admins. It needs less work than manual curation, scales better, and integrates well with the existing systems in Jellyfin.
 
-However, Options A and B both provide value for different use-cases. As such my suggestion would be to implement both options together in phases. [Option A: Transcoding](#option-a) should be implemented in Phase 1, and [Option B: Manual Curation](#option-b) in Phase 2 if there is an appetite for it.
+However, Options A and B both provide value for different use-cases. As such my suggestion would be to implement both options together in phases. [Option A: Transcoding](#option-a) should be implemented in Phase 1, and [Option B: Manual Curation](#option-b) in Phase 2 if there is an appetite for it. Additional phases could also take place to refine this new feature even further.
 
 [Option C: Do Nothing](#option-c) remains available to admins today, but leaves the request unaddressed. Option B is essentially Option C with the server choosing the right version for each user based on their preferences, and keeping the smaller files out of the playback versions list.
 
@@ -597,20 +597,20 @@ Transcoded files will include all existing subtitle files from the original vide
 
 A new *Prepare* route should be introduced for the *Prepare then Download* workflow: `Items/{itemId}/Download/Prepare`. It starts the transcode job, or joins a running one, and reports its state - ready, transcoding (with progress), or failed. Prepare returns a response immediately and is then polled (holding a download request open until the transcode finishes would exceed reverse-proxy and browser timeouts).
 
-`Prepare` should include the currently selected audio track ID as a query parameter (e.g. `audioId=1`).
+`Prepare` should include the currently selected audio track ID as a query parameter (e.g. `audioStreamIndex=1`).
 
-Once `Prepare` returns `ready`, the client would send the download request along with the selected audio track ID: `GET Items/{itemId}/Download?optimised=true&audioId=1`. If the optimised video file is not yet ready (does not exist, or isn't transcoded yet), the server will respond with `409 Conflict`.
+Once `Prepare` returns `ready`, the client would send the download request along with the selected audio track ID: `GET Items/{itemId}/Download?optimised=true&audioStreamIndex=1`. If the optimised video file is not yet ready (does not exist, or isn't transcoded yet), the server will respond with `409 Conflict`.
 
 The file transcoded/returned will match the user's quality tier preference (or server default), the selected audio track downmixed to stereo (AAC by default) with no other audio, and all subtitle tracks from the video. 
 
-1. Client sends the request: `POST Items/{itemId}/Download/Prepare?audioId=1`
+1. Client sends the request: `POST Items/{itemId}/Download/Prepare?audioStreamIndex=1`
     * Starts a job if a file doesn't exist, or joins an existing job if one is running.
     * Returns `transcoding` with progress when a file is not ready
     * Returns `ready` when the file can be downloaded
     * Returns `failed` on error
 2. Client polls `Prepare` until it returns `ready` or `failed`
 3. When `Prepare` returns `ready` it includes the media info describing the video, and the ETag.
-4. Client sends the download request `GET Items/{itemId}/Download?optimised=true&audioId=1` with `If-Match: <ETag from step 3>`. If the server responds with a `412` (the file changed), or a `409` (not ready), the client returns to step 1.
+4. Client sends the download request `GET Items/{itemId}/Download?optimised=true&audioStreamIndex=1` with `If-Match: <ETag from step 3>`. If the server responds with a `412` (the file changed), or a `409` (not ready), the client returns to step 1.
 
 <br>
 
