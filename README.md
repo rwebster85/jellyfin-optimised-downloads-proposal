@@ -612,7 +612,7 @@ An older server without this route returns `404`: clients treat that as the feat
 |---|---|---|
 | `GET Downloads/Behaviour` | `200 OK` | Whether the feature is on, whether to show `Download Original`, and the tiers. |
 | `POST Items/{itemId}/Download/Prepare` <br> *(Transcoding)* | `200 OK` | Ready. Body: media info of the file, and its ETag. |
-| | `202 Accepted` | Transcoding, or queued. Body: progress. A `Retry-After` header suggests the poll interval. |
+| | `202 Accepted` | Transcoding, or queued. Body: progress, or position in the queue. A `Retry-After` header suggests the poll interval. |
 | | `500 Internal Server Error` | The transcode failed. Body: state `failed`. |
 | | `507 Insufficient Storage` | No transcode location has room for the new transcode. |
 | | `404 Not Found` | Item not found, or not a downloadable video. |
@@ -642,7 +642,7 @@ Transcoded files will include all embedded subtitle tracks and chapters from the
 
 #### 7.2.1. Transcoding - Download API
 
-A new *Prepare* route should be introduced for the *Prepare then Download* workflow: `Items/{itemId}/Download/Prepare`. It starts the transcode job, or joins a running one, and reports its state - ready, transcoding (with progress), or failed. Prepare returns a response immediately and is then polled (holding a download request open until the transcode finishes would exceed reverse-proxy and browser timeouts).
+A new *Prepare* route should be introduced for the *Prepare then Download* workflow: `Items/{itemId}/Download/Prepare`. It starts the transcode job, or joins a running one, and reports its state - ready, queued (with its position), transcoding (with progress), or failed. Prepare returns a response immediately and is then polled (holding a download request open until the transcode finishes would exceed reverse-proxy and browser timeouts).
 
 `Prepare` should include the selected audio stream as a query parameter (e.g. `audioStreamIndex=1`). The parameter is optional: without it, the user's default audio stream for the video is used.
 
@@ -650,8 +650,11 @@ Once `Prepare` returns `ready`, the client would send the download request with 
 
 The file transcoded/returned will match the user's quality tier preference (or server default), the selected audio track downmixed to stereo (AAC by default) with no other audio, and all embedded subtitle tracks and chapters from the video.
 
+Only a set number of download transcodes run at once (see [7.2.2](#722-transcoding---global-settings)). A job started beyond that limit waits in a queue, first come first served, and starts when a running job finishes. A request for a video that is already queued or transcoding joins that job. A queued job that no client is polling any more (none for several poll intervals) is cancelled and removed from the queue, unlike a running job, which finishes in the background.
+
 1. Client sends the request: `POST Items/{itemId}/Download/Prepare?audioStreamIndex=1`
     * Starts a job if a file doesn't exist, or joins an existing job if one is running.
+    * Returns `queued` with its position when the job is waiting for a free slot
     * Returns `transcoding` with progress when a file is not ready
     * Returns `ready` when the file can be downloaded
     * Returns `failed` on error
@@ -683,6 +686,10 @@ There will also be a checkbox option where the admin can opt to invalidate exist
 * **On:** the tier's version increases, so existing transcodes made with the old settings are no longer found. New downloads are transcoded with the new settings, and a background task deletes the old transcodes.
 
 When a tier is deleted, its transcodes are deleted, and users who preferred it fall back to the server default.
+
+<br>
+
+The admin also sets the maximum number of download transcodes that may run at once, defaulting to 1. Further jobs wait in a queue (see [7.2.1](#721-transcoding---download-api)). This limit applies to download transcodes only: playback transcoding is unaffected and does not count towards it.
 
 <br>
 
