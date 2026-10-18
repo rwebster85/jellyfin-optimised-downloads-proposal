@@ -81,7 +81,7 @@ Optimised downloading enables downloading media for offline/travel consumption b
 
 ## 4. Proposed Options
 
-What follows is an appraisal of three potential solutions. The two change options could be implemented alongside eachother, or only one of them selected. Conceptually they both share these core concepts:
+What follows is an appraisal of three potential solutions. The two change options could be implemented alongside each other, or only one of them selected. Conceptually they both share these core concepts:
 
 ### 4.1. Common concepts
 
@@ -336,7 +336,7 @@ Until an option to the proposed solution is agreed, what follows will be a high-
 
 ### 5.1. ArchiMate Notation
 
-The high-level design (HLD) uses the ArchiMate enterprise architecture modelling language to represent the different elements within the system and their relationships with eachother.
+The high-level design (HLD) uses the ArchiMate enterprise architecture modelling language to represent the different elements within the system and their relationships with each other.
 
 Diagrams were created using [Visual Paradigm Online](https://online.visual-paradigm.com/), and a quirk of the tool is *Access* arrow lines are dashed instead of dotted.
 
