@@ -172,7 +172,7 @@ The spike first streamed the transcode to the client as it was written. Testing 
 
 **Conclusion**
 
-Files should be transcoded in full before they are served (see [5.3.1](#transcode-download)). The cost is that the first download of a video at a tier waits for the transcode: 1.5 to 3 minutes for a 1080p film, and 5 to 10 minutes for a 4K HDR one, on the hardware above.
+Files should be transcoded in full before they are served (see [5.3.1](#transcode-download)). The cost is that the first download of a video at a tier and audio track waits for the transcode: 1.5 to 3 minutes for a 1080p film, and 5 to 10 minutes for a 4K HDR one, on the hardware above.
 
 <br>
 
@@ -183,9 +183,9 @@ Files should be transcoded in full before they are served (see [5.3.1](#transcod
 * **Pro:** Scalable - Server admin is not concerned with managing these optimised downloads.
 * **Pro:** Automated - Background processes handle generation and removal.
 * **Pro:** Self contained - Everything happens on the server.
-* **Con:** Real-time cost - Transcoding takes a not-insignificant amount of resources, and the first download at a tier waits for it (up to 10 minutes for a 4K film on the hardware tested: see above).
+* **Con:** Real-time cost - Transcoding takes a not-insignificant amount of resources, and the first download at a tier and audio track waits for it (up to 10 minutes for a 4K film on the hardware tested: see above).
 * **Con:** Unpredictable quality - Bitrate and resolution aren't obvious indicators of quality produced, and different hardware can produce different results.
-* **Con:** Unpredictable storage requirements - Storage requirements are unknown, and storage capacity is highly expensive.
+* **Con:** Unpredictable storage requirements - Storage requirements are unknown, as each video can have one transcode per tier and audio track (though most downloads use the user's default track), and storage capacity is highly expensive.
 
 <br>
 
@@ -460,6 +460,7 @@ Definitions:
 
 * A transcode file matching a video in the library that was removed/renamed/changed.
 * A transcode file that no longer matches the tier resolution and/or bitrate that created it, if the admin opts for that setting. By default, tier changes will not make stale any existing transcodes.
+* A transcode whose tier was deleted.
 
 <br>
 
@@ -664,11 +665,20 @@ The admin will be able to create quality tiers that include a display name, reso
 
 * Display name: High (1080p) - free text field
 * Resolution: 1080p - from a list of resolutions
-* Bitrate: 1500 - free text field in `Kbps`
+* Bitrate: 1500 - number field in kbps
 
 <br>
 
-There will also be a checkbox option where the admin to opt to invalidate existing transcodes when they make changes to the quality tiers. By default this will be off.
+The tiers are listed in order of preference, and the top tier is the server default.
+
+Each tier is also given an ID (a GUID, created with the tier and never changed) and a version, starting at 1. Both are internal and not shown to the admin. They form part of each transcode's filename (see [7.2.3](#723-transcoding---directory-structure)), so a tier can be renamed or reordered without affecting its existing transcodes.
+
+There will also be a checkbox option where the admin can opt to invalidate existing transcodes when they make changes to the quality tiers. By default this will be off.
+
+* **Off:** the tier's version is unchanged, so existing transcodes are still found and served, even though they were made with the old settings. Only new transcodes use the new settings.
+* **On:** the tier's version increases, so existing transcodes made with the old settings are no longer found. New downloads are transcoded with the new settings, and a background task deletes the old transcodes.
+
+When a tier is deleted, its transcodes are deleted, and users who preferred it fall back to the server default.
 
 <br>
 
