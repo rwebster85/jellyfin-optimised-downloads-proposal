@@ -16,11 +16,16 @@ Provide clients with the ability to download videos from the library in lower qu
   - [4.1. Common concepts](#41-common-concepts)
   - [4.2. Option A: Transcoding](#42-option-a-transcoding)
     - [4.2.1. Transcoding Spike](#421-transcoding-spike)
-    - [4.2.2. Transcoding Results](#422-transcoding-results)
-    - [4.2.3. Transcoding - Pros \& Cons](#423-transcoding---pros--cons)
+    - [4.2.2. Transcoding Tests](#422-transcoding-tests)
+    - [4.2.3. On-demand Transcode Download](#423-on-demand-transcode-download)
+    - [4.2.4. Hardware vs Software](#424-hardware-vs-software)
+    - [4.2.5. Transcoding - Findings](#425-transcoding---findings)
+    - [4.2.6. Transcoding - Pros \& Cons](#426-transcoding---pros--cons)
   - [4.3. Option B: Manual Curation](#43-option-b-manual-curation)
     - [4.3.1. Manual Curation MVP](#431-manual-curation-mvp)
-    - [4.3.2. Manual Curation - Pros \& Cons](#432-manual-curation---pros--cons)
+    - [4.3.2. Manual Curation - Encoder Comparison](#432-manual-curation---encoder-comparison)
+    - [4.3.3. Manual Curation - Findings](#433-manual-curation---findings)
+    - [4.3.4. Manual Curation - Pros \& Cons](#434-manual-curation---pros--cons)
   - [4.4. Option C: Do Nothing](#44-option-c-do-nothing)
     - [4.4.1. Do Nothing - Pros \& Cons](#441-do-nothing---pros--cons)
   - [4.5. Recommended Solution](#45-recommended-solution)
@@ -67,7 +72,7 @@ There have been several requests for this functionality within Jellyfin Core as 
 
 **Meta Discussions**
 * [Meta #66 - Proposal for Introducing Transcoding Options to Media Downloads](https://github.com/jellyfin/jellyfin-meta/discussions/66)
-  * *nielsvanvelzen* asked why the existing transcoding pipeline (transcode -> serve in packets) can't be used. [Section 4.2.2](#422-transcoding-results) addresses the problem of serving files mid-transcode. 
+  * *nielsvanvelzen* asked why the existing transcoding pipeline (transcode -> serve in packets) can't be used. [Section 4.2.3 - On-demand Transcode Download](#423-on-demand-transcode-download) shows the problems with serving files while they're being transcoded. 
 * [Meta #115 - Implementation for transcoded files download](https://github.com/jellyfin/jellyfin-meta/discussions/115)
 * [Meta #131 - Transcoded downloads: a job-based, resumable API](https://github.com/jellyfin/jellyfin-meta/discussions/131)
   * This proposal differs to Meta #131 in some significant ways:
@@ -94,8 +99,6 @@ There have been several requests for this functionality within Jellyfin Core as 
 ### 1.2. This Proposal
 
 This is a new proposal that follows *nielsvanvelzen*'s comment in [Meta #66](https://github.com/jellyfin/jellyfin-meta/discussions/66#discussioncomment-15641494), suggesting opening a new discussion rather than continuing the old one. It builds off previous discussions/requests while presenting a solution as an appraisal of three potential options, based on assessments from a proof-of-concept MVP (one in actual use within a real library and device ecosystem) and a feasibility spike, then finally recommending a solution. It also includes transcoding test results from real hardware to provide example data of potential time and resource costs.
-
-It is also available as a public repository on my [GitHub](https://github.com/rwebster85/jellyfin-optimised-downloads-proposal).
 
 <br>
 
@@ -173,13 +176,17 @@ The results of this work can be viewed as follows: <a href="https://github.com/r
 
 <p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
 
-#### 4.2.2. Transcoding Results
+#### 4.2.2. Transcoding Tests
 
 Transcoding depends entirely on the hardware (or software) solution available on the server. As such, a wide variety of configurations will produce varying results, ranging from potential image quality differences to time-to-transcode delay.
 
 To establish a baseline for cost I tested hardware encoding from two different sources on two different machines. One was a Windows 11 desktop with an RTX 5090 (NVENC), the other a Linux Mint server with an i5-12600 (Intel QuickSync). A separate run with the same sources was tested on the server with hardware acceleration disabled. Each used the `ffmpeg` commands Jellyfin generated on each machine with baseline settings.
 
-**On-demand transcode download**
+<br>
+
+<p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
+
+#### 4.2.3. On-demand Transcode Download
 
 **Sources:**
 * I, Robot (2004) 1080p HEVC Main 10 SDR, 7.2 GB, 1:54:43
@@ -214,7 +221,24 @@ To establish a baseline for cost I tested hardware encoding from two different s
 
 <br>
 
-**Hardware vs software encoding**
+**Serving a file while it is still being transcoded**
+
+The spike first streamed the transcode to the client as it was written. Testing showed this is unreliable.
+
+| Finding | Impact |
+|---|---|
+| `ffmpeg` writes an MKV's duration and seek index at the start of the file once encoding finishes. A client streaming the growing file has already received the placeholder. | The downloaded file reports the wrong duration and lacks its seek index. |
+| Fragmented MP4 streams intact, but ExoPlayer (used for offline playback on Android) cannot seek it without a `sidx` index, which ffmpeg can only write once encoding finishes. | No container is both streaming-safe and seekable on every client. MP4 would also rule out image-based subtitles. |
+| If a transcode fails, or is stopped because its video was removed from the library, the response simply ends. | The client keeps a partial file with no indication it failed. |
+| A growing file has no known size and cannot serve byte ranges. | No download progress percentage, and an interrupted download restarts from the beginning. |
+| A file that does not exist yet cannot be described (MediaInfo). | Clients that store a description of the download for offline playback cannot get one in advance. |
+| The client can only receive what has been encoded so far. | Download speed is capped by encoding speed. |
+
+<br>
+
+<p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
+
+#### 4.2.4. Hardware vs Software
 
 The same transcodes on the server with hardware acceleration set to None, to show the cost on a server without it. Jellyfin uses `libx264` / `libx265` with preset auto (`veryfast`), its default CRF (23 / 28) capped at 750 kbps, and `tonemapx` (bt2390) for Dune. HEVC was added for both encoders.
 
@@ -246,35 +270,22 @@ Without hardware encoding, a transcode takes about twice as long and holds 78-90
 
 <br>
 
-**Serving a file while it is still being transcoded**
+<p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
 
-The spike first streamed the transcode to the client as it was written. Testing showed this is unreliable.
+#### 4.2.5. Transcoding - Findings
 
-| Finding | Impact |
-|---|---|
-| `ffmpeg` writes an MKV's duration and seek index at the start of the file once encoding finishes. A client streaming the growing file has already received the placeholder. | The downloaded file reports the wrong duration and lacks its seek index. |
-| Fragmented MP4 streams intact, but ExoPlayer (used for offline playback on Android) cannot seek it without a `sidx` index, which ffmpeg can only write once encoding finishes. | No container is both streaming-safe and seekable on every client. MP4 would also rule out image-based subtitles. |
-| If a transcode fails, or is stopped because its video was removed from the library, the response simply ends. | The client keeps a partial file with no indication it failed. |
-| A growing file has no known size and cannot serve byte ranges. | No download progress percentage, and an interrupted download restarts from the beginning. |
-| A file that does not exist yet cannot be described (MediaInfo). | Clients that store a description of the download for offline playback cannot get one in advance. |
-| The client can only receive what has been encoded so far. | Download speed is capped by encoding speed. |
-
-<br>
-
-**Conclusion**
-
-Files should be transcoded in full before they are served (see [5.3.1](#531-transcode-process)). The cost is that the first download of a video at a tier and audio track waits for the transcode: 1.5 to 3 minutes for a 1080p film, and 5 to 10 minutes for a 4K HDR one, on the systems above with hardware H.264 encoding.
+Files should be transcoded in full before they are served (see [5.3.1 - Transcode Process](#531-transcode-process)). The cost is that the first download of a video at a tier and audio track waits for the transcode: 1.5 to 3 minutes for a 1080p film, and 5 to 10 minutes for a 4K HDR one, on the systems above ([4.2.3](#423-on-demand-transcode-download)) with hardware H.264 encoding.
 
 <br>
 
 <p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
 
-#### 4.2.3. Transcoding - Pros & Cons
+#### 4.2.6. Transcoding - Pros & Cons
 
 * **Pro:** Scalable - Server admin is not concerned with managing these optimised downloads.
 * **Pro:** Automated - Background processes handle generation and removal.
 * **Pro:** Self contained - Everything happens on the server.
-* **Con:** Real-time cost - Transcoding takes a not-insignificant amount of resources, especially in software, and the first download at a tier and audio track waits for it (up to 10 minutes for a 4K film with hardware H.264 encoding, and over 20 in software: see above).
+* **Con:** Real-time cost - Transcoding takes a not-insignificant amount of resources, especially in software, and the first download at a tier and audio track waits for it (up to 10 minutes for a 4K film with hardware H.264 encoding, and over 20 in software: see [4.2.4 - Hardware vs Software](#424-hardware-vs-software) above).
 * **Con:** Unpredictable quality - Bitrate and resolution aren't obvious indicators of quality produced, and different hardware can produce different results.
 * **Con:** Unpredictable storage requirements - Storage requirements are unknown, as each video can have one transcode per tier and audio track (though most downloads use the user's default track), and storage capacity is highly expensive.
 
@@ -303,11 +314,13 @@ This MVP served as an immediate use-case for my own personal use and has been te
 
 <br>
 
-**Encoder comparison**
+<p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
+
+#### 4.3.2. Manual Curation - Encoder Comparison
 
 My encoding tool's "High" tier on NVENC, against a QuickSync equivalent (my tool is NVENC-only).
 
-Sources used were the same as section [4.2.2](#422-transcoding-results).
+Sources used were the same as section [4.2.3 - On-demand Transcode Download](#423-on-demand-transcode-download).
 
 <br>
 
@@ -334,7 +347,9 @@ Sources used were the same as section [4.2.2](#422-transcoding-results).
 
 <br>
 
-**Conclusion**
+<p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
+
+#### 4.3.3. Manual Curation - Findings
 
 Encoding to a higher-quality tier costs far more than Jellyfin's on-demand transcode: on the same server, about 4x longer for Dune. Curated files can instead be produced on a faster machine, as here.
 
@@ -342,12 +357,12 @@ Encoding to a higher-quality tier costs far more than Jellyfin's on-demand trans
 
 <p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
 
-#### 4.3.2. Manual Curation - Pros & Cons
+#### 4.3.4. Manual Curation - Pros & Cons
 
 * **Pro:** Highly curated - Server admin has a hand in each file/format.
 * **Pro:** Predictable results - Files are chosen by the admin and can be checked for quality issues.
 * **Pro:** Tailored quality - Files can be tailored for their requirements, such as darkness, fast-moving action, or high frequency film grain.
-* **Con:** Time intensive - Manual curation and production takes time (encoding one 4K film at a high-quality tier took 6 to 39 minutes on the hardware tested: see above).
+* **Con:** Time intensive - Manual curation and production takes time (encoding one 4K film at a high-quality tier took 6 to 39 minutes on the hardware tested: see [4.3.2 - Encoder Comparison](#432-manual-curation---encoder-comparison) above).
 * **Con:** High storage requirements - Multiple quality tiers for multiple video versions required.
 * **Con:** Not scalable - Every new video potentially requires companion optimised versions manually sourced.
 
@@ -378,7 +393,7 @@ Change nothing about the existing system and rely on server admins to make use o
 
 ### 4.5. Recommended Solution
 
-Based on the research and results of the MVP and spike, **[Option A: Transcoding](#42-option-a-transcoding)** is the clear choice for friction vs value for server admins. It needs less work than manual curation, scales better, and integrates well with the existing systems in Jellyfin.
+Based on the research and results of the MVP ([4.3.3](#433-manual-curation---findings)) and spike ([4.2.5](#425-transcoding---findings)), the clear choice for friction vs value for server admins is to implement **[Option A: Transcoding](#42-option-a-transcoding)**. It needs less work than manual curation, scales better, and integrates well with the existing systems in Jellyfin.
 
 However, Options A and B both provide value for different use-cases. As such my suggestion would be to implement both options together in phases. [Option A: Transcoding](#42-option-a-transcoding) should be implemented in Phase 1, and [Option B: Manual Curation](#43-option-b-manual-curation) in Phase 2 if there is an appetite for it. Additional phases could also take place to refine this new feature even further (see [section 8](#8-future-phases)).
 
@@ -1000,7 +1015,7 @@ Points not yet decided, where a maintainer's view would settle the design:
 5. **Audio codec.** The audio is downmixed to stereo: is AAC a suitable default?
 6. **A failed transcode.** Should `Prepare` return an error response (`500`) or an ok (`200`) with the state as `failed`? (See [7.1.2](#712-download-api).)
 7. **Scheduled pre-transcode.** Which videos, tiers, audio tracks, and should it count towards the limit etc. (See [5.3.3](#533-scheduled-pre-transcode).)
-8. **Hardware acceleration.** I recommended transcoded downloads should be unavailable without hardware acceleration (see [4.2.2](#422-transcoding-results)). Should we allow it regardless, with a warning if no hardware acceleration is set?
+8. **Hardware acceleration.** I recommended transcoded downloads should be unavailable without hardware acceleration (see [4.2.4 - Hardware vs Software](#424-hardware-vs-software)). Should we allow it regardless, with a warning if no hardware acceleration is set?
 
 <br>
 
