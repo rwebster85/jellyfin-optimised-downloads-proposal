@@ -3,7 +3,7 @@
 
 <br>
 
-* **19th Oct 2026**: Added Additional headers for easier navigation.
+* **19th Oct 2026**: Added additional headers for easier navigation.
 * **21st Oct 2026**: More headers added.
 
 </details>
