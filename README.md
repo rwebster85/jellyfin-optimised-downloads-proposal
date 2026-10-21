@@ -682,7 +682,7 @@ The following implementation details only reflect what is necessary for appraisa
 A global settings screen will be created for server admins:
 
 * A checkbox to enable/disable this whole feature - default off.
-  * When the feature is off, every route would describe and serve the original file, in-line with today's behaviour: `Download?optimized=true` serves the file, and both `Prepare` and `MediaInfo` return a `200` response along with the original file's media info and ETag.
+  * When the feature is off, every route would describe and serve the original file, in-line with today's behaviour: `Download?optimized=true` serves the file, and both `Prepare` and `MediaInfo` return a `200` response along with the original file's media info and ETag (see [7.1.5](#715-response-codes)).
 * A global set of locations used to store optimised files.
   * These do not take priority over library settings locations.
 * A checkbox to show a "Download Original" link in the UI.
@@ -697,7 +697,7 @@ The global download settings are stored in the XML config store, like some other
 
 #### 7.1.2. Permissions
 
-Optimised downloading still requires the existing `Allow media downloading` permissions setting, and transcoding still uses the `Allow video playback that requires transcoding` permissions setting. Even when a transcode of that video already exists, a user who is not permitted to use transcoding will be served the original file: the `Downloads/Behaviour` API response will return `enabled: false`. Nothing is encoded with the Manual Curation option, so `Allow media downloading` is the only permission used. These decisions are open to discussion, with the potential of a new permission being introduced.
+Optimised downloading still requires the existing `Allow media downloading` permissions setting, and transcoding still uses the `Allow video playback that requires transcoding` permissions setting. Even when a transcode of that video already exists, a user who is not permitted to use transcoding will be served the original file: the `Downloads/Behaviour` API response (see [7.1.4](#714-download-behaviour)) will return `enabled: false`. Nothing is encoded with the Manual Curation option, so `Allow media downloading` is the only permission used. These decisions are open to discussion, with the potential of a new permission being introduced.
 
 <br>
 
@@ -707,11 +707,11 @@ Optimised downloading still requires the existing `Allow media downloading` perm
 
 All clients that support downloading will need to be updated for either Transcoding or Manual Curation.
 
-Before downloading, clients that store media info for offline playback (Android) get a description of the file to be served, and its ETag (see [7.1.6](#716-etag)), from `Prepare`'s ready response (Transcoding) or a new `Items/{itemId}/Download/MediaInfo` route (Manual Curation). The client sends that ETag with the download (`If-Match`). If the file has changed in between, the server refuses with `412` and the client starts again. Clients that hand the file to the browser or operating system (Web) skip this, and send the download without `If-Match`.
+Before downloading, clients that store media info for offline playback (Android) get a description of the file to be served, and its ETag (see [7.1.6](#716-etag)), from `Prepare`'s ready response (Transcoding) or a new `Items/{itemId}/Download/MediaInfo` route (Manual Curation). The client sends that ETag with the download (`If-Match`). If the file has changed in between, the server refuses with `412` (see [7.1.5](#715-response-codes)) and the client starts again. Clients that hand the file to the browser or operating system (Web) skip this, and send the download without `If-Match`.
 
 The existing download route will require an `optimized=true` parameter, becoming `GET Items/{itemId}/Download?optimized=true`. For backwards compatibility, without the new query parameter the behaviour of `GET Items/{itemId}/Download` remains unchanged: the original file will be served, in line with current behaviour.
 
-When Optimised Downloads is enabled, the existing `Download` link in the client would call `GET Items/{itemId}/Download?optimized=true`, and the new `Download Original` would call the existing plain `GET Items/{itemId}/Download`. When the feature is disabled, `Download Original` is hidden and `Download` simply calls the existing plain route.
+When Optimised Downloads is enabled, the existing `Download` link in the client would call `GET Items/{itemId}/Download?optimized=true`, and the new `Download Original` would call the existing plain `GET Items/{itemId}/Download`. When the feature is disabled, `Download Original` is hidden and `Download` simply calls the existing plain route (see [7.1.4](#714-download-behaviour)).
 
 The transcoding API uses an optional `audioStreamIndex` for `Prepare` and the optimised download (see [7.2.1](#721-transcoding---download-api)). When not supplied, the audio stream the system would determine to be the user's default would be selected.
 
@@ -786,7 +786,7 @@ A strong ETag ensures the exact file requested is the exact file being served. I
 
 ### 7.2. Transcoding
 
-The resulting transcoded video will contain a single audio track (the audio stream as requested in the API, or the user's calculated default audio stream for that video), every embedded subtitle track, and the chapters. External subtitles are not included, but could be added in a future phase (see [section 8](#8-future-phases)).
+The resulting transcoded video will contain a single audio track (the audio stream as requested in the API, or the user's calculated default audio stream for that video), every embedded subtitle track (see [7.2.3](#723-transcoding---containers) for how this can determine the container), and the chapters. External subtitles are not included, but could be added in a future phase (see [section 8](#8-future-phases)).
 
 <br>
 
@@ -798,7 +798,7 @@ A new *Prepare* route should be introduced for the *Prepare then Download* workf
 
 `Prepare` should include the currently selected audio stream as a query parameter (e.g. `audioStreamIndex=1`). The parameter is optional and without it, the server will select the audio stream to use based on the user's preferences.
 
-Once `Prepare` returns `ready`, the client would send the download request with the same audio stream included: `GET Items/{itemId}/Download?optimized=true&audioStreamIndex=1`. If the optimised video file isn't ready yet (does not exist, or is awaiting transcoding), the server will respond with a `409 Conflict`.
+Once `Prepare` returns `ready`, the client would send the download request with the same audio stream included: `GET Items/{itemId}/Download?optimized=true&audioStreamIndex=1`. If the optimised video file isn't ready yet (does not exist, or is awaiting transcoding), the server will respond with a `409 Conflict` (see [7.1.5](#715-response-codes)).
 
 The file transcoded/returned will match the user's quality tier preference (or server default), the selected audio track downmixed to stereo (AAC by default) with no other audio, and all embedded subtitle tracks and chapters from the video.
 
@@ -870,7 +870,7 @@ The admin should have the ability to select multiple storage locations for trans
 
 The unpredictability of the required storage space for as-yet-to-be transcoded files means the system must enable resilience in the event one storage location may be at capacity.
 
-If all given locations are full, the `Prepare` API call will return a `507 Insufficient Storage` response.
+If all given locations are full, the `Prepare` API call will return a `507 Insufficient Storage` response (see [7.1.5](#715-response-codes)).
 
 <br>
 
@@ -951,7 +951,7 @@ Example:
 
 #### 7.3.1. Manual Curation - Download API
 
-Manual Curation makes use of the same download links as Transcoding (see [7.1.3](#713-download-api)): the existing `Download` link sends requests to `GET Items/{itemId}/Download?optimized=true`, and the `Download Original` link, when shown, the unchanged route. Curated files already exist so there is no `Prepare` step in the workflow.
+Manual Curation makes use of the same download links as Transcoding (see [7.1.3](#713-download-api) and [7.1.4](#714-download-behaviour)): the existing `Download` link sends requests to `GET Items/{itemId}/Download?optimized=true`, and the `Download Original` link, when shown, the unchanged route. Curated files already exist so there is no `Prepare` step in the workflow.
 
 The file returned will match the user's quality tier preference (or server default), or if no optimised file exists for the item, the original is served.
 
