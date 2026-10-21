@@ -698,6 +698,8 @@ The global download settings are stored in the XML config store, like some other
 
 <br>
 
+<p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
+
 #### 7.1.2. Permissions
 
 Optimised downloading still requires the existing `Allow media downloading` permissions setting, and transcoding still uses the `Allow video playback that requires transcoding` permissions setting. Even when a transcode of that video already exists, a user who is not permitted to use transcoding will be served the original file: the `Downloads/Behaviour` API response (see [7.1.4](#714-download-behaviour)) will return `enabled: false`. Nothing is encoded with the Manual Curation option, so `Allow media downloading` is the only permission used. These decisions are open to discussion, with the potential of a new permission being introduced.
