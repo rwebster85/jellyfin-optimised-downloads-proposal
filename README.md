@@ -8,8 +8,6 @@
 
 </details>
 
-<br>
-
 ---
 
 # Proposal: Optimised Video Downloads <!-- omit from toc -->
