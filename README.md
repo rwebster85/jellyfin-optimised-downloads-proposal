@@ -1,3 +1,12 @@
+<details>
+  <summary><b>Version history</b></summary>
+
+</details>
+
+<br>
+
+---
+
 # Proposal: Optimised Video Downloads <!-- omit from toc -->
 
 Provide clients with the ability to download videos from the library in lower quality, smaller file sizes.
@@ -45,12 +54,16 @@ Provide clients with the ability to download videos from the library in lower qu
 - [7. Implementation](#7-implementation)
   - [7.1. Common](#71-common)
     - [7.1.1. Global settings screen](#711-global-settings-screen)
-    - [7.1.2. Download API](#712-download-api)
-    - [7.1.3. ETag](#713-etag)
+    - [7.1.2. Permissions](#712-permissions)
+    - [7.1.3. Download API](#713-download-api)
+    - [7.1.4. Download behaviour](#714-download-behaviour)
+    - [7.1.5. Response codes](#715-response-codes)
+    - [7.1.6. ETag](#716-etag)
   - [7.2. Transcoding](#72-transcoding)
     - [7.2.1. Transcoding - Download API](#721-transcoding---download-api)
     - [7.2.2. Transcoding - Global Settings](#722-transcoding---global-settings)
-    - [7.2.3. Transcoding - Directory Structure](#723-transcoding---directory-structure)
+    - [7.2.3. Transcoding - Containers](#723-transcoding---containers)
+    - [7.2.4. Transcoding - Directory Structure](#724-transcoding---directory-structure)
   - [7.3. Manual Curation](#73-manual-curation)
     - [7.3.1. Manual Curation - Download API](#731-manual-curation---download-api)
     - [7.3.2. Manual Curation - Global Settings](#732-manual-curation---global-settings)
@@ -682,7 +695,7 @@ The global download settings are stored in the XML config store, like some other
 
 <br>
 
-**Permissions**
+#### 7.1.2. Permissions
 
 Optimised downloading still requires the existing `Allow media downloading` permissions setting, and transcoding still uses the `Allow video playback that requires transcoding` permissions setting. Even when a transcode of that video already exists, a user who is not permitted to use transcoding will be served the original file: the `Downloads/Behaviour` API response will return `enabled: false`. Nothing is encoded with the Manual Curation option, so `Allow media downloading` is the only permission used. These decisions are open to discussion, with the potential of a new permission being introduced.
 
@@ -690,11 +703,11 @@ Optimised downloading still requires the existing `Allow media downloading` perm
 
 <p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
 
-#### 7.1.2. Download API
+#### 7.1.3. Download API
 
 All clients that support downloading will need to be updated for either Transcoding or Manual Curation.
 
-Before downloading, clients that store media info for offline playback (Android) get a description of the file to be served, and its ETag (see [7.1.3](#713-etag)), from `Prepare`'s ready response (Transcoding) or a new `Items/{itemId}/Download/MediaInfo` route (Manual Curation). The client sends that ETag with the download (`If-Match`). If the file has changed in between, the server refuses with `412` and the client starts again. Clients that hand the file to the browser or operating system (Web) skip this, and send the download without `If-Match`.
+Before downloading, clients that store media info for offline playback (Android) get a description of the file to be served, and its ETag (see [7.1.6](#716-etag)), from `Prepare`'s ready response (Transcoding) or a new `Items/{itemId}/Download/MediaInfo` route (Manual Curation). The client sends that ETag with the download (`If-Match`). If the file has changed in between, the server refuses with `412` and the client starts again. Clients that hand the file to the browser or operating system (Web) skip this, and send the download without `If-Match`.
 
 The existing download route will require an `optimized=true` parameter, becoming `GET Items/{itemId}/Download?optimized=true`. For backwards compatibility, without the new query parameter the behaviour of `GET Items/{itemId}/Download` remains unchanged: the original file will be served, in line with current behaviour.
 
@@ -704,9 +717,11 @@ The transcoding API uses an optional `audioStreamIndex` for `Prepare` and the op
 
 <br>
 
-**Download behaviour**
+<p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
 
-When clients are updated, they determine which links to show by calling the new `GET Downloads/Behaviour` API, as well as the tiers the user could select:
+#### 7.1.4. Download behaviour
+
+When clients are updated they call the new `GET Downloads/Behaviour` route to determine which download links to show, as well as the tiers the user can choose from:
 
 <br>
 
@@ -721,7 +736,7 @@ When clients are updated, they determine which links to show by calling the new 
 }
 ```
 
-* `enabled` - Whether the feature is on and the user has permission to transcode (see [7.1.1 Permissions](#711-global-settings-screen)).
+* `enabled` - Whether the feature is on and the user has permission to transcode (see [7.1.2](#712-permissions)).
 * `showOriginalLink` - Whether the `Download Original` link should show.
 * `tiers` - The quality tiers, in order from the dashboard - sorted by the admin, the first being the server default. Clients use this list for the user's tier preference dropdown selection.
 
@@ -731,7 +746,9 @@ For an out-of-date server the route would return a `404`, so clients should trea
 
 <br>
 
-**Response codes**
+<p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
+
+#### 7.1.5. Response codes
 
 | Route | Code | Meaning |
 |---|---|---|
@@ -757,7 +774,7 @@ Permission checks ensure that all routes will return a `401 Unauthorized` respon
 
 <p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
 
-#### 7.1.3. ETag
+#### 7.1.6. ETag
 
 A strong ETag ensures the exact file requested is the exact file being served. It is provided to clients in the initial response, as well as the file download response, so the server can check they match. It is used for transcoded files, manually curated ones, and the original. It is calculated using the following formula:
 
@@ -813,7 +830,7 @@ The admin will be able to create quality tiers that include a display name, reso
 
 Tiers are displayed in order of preference and their position can be moved up or down the list. Whichever tier is at the top of the list is considered the "server default".
 
-Each tier has a unique ID generated (GUID) along with a version number, incrementing from 1. These are not displayed in the UI. They are used to generate the transcoded video filename (see [7.2.3](#723-transcoding---directory-structure)), and the version number increments when the tier is edited, unless the "invalidate existing transcodes" option detailed below is disabled.
+Each tier has a unique ID generated (GUID) along with a version number, incrementing from 1. These are not displayed in the UI. They are used to generate the transcoded video filename (see [7.2.4](#724-transcoding---directory-structure)), and the version number increments when the tier is edited, unless the "invalidate existing transcodes" option detailed below is disabled.
 
 There will also be a checkbox option where the admin can opt to invalidate existing transcodes when they make changes to the quality tiers. By default this will be off. When off, tier version numbers will not be incremented, preserving existing transcodes when staleness checks are performed. When on and a tier is amended, its version number increments, invalidating all existing transcodes generated with the previous tier values.
 
@@ -827,7 +844,25 @@ The server admin sets the number of simultaneous transcode downloads, which defa
 
 <p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
 
-#### 7.2.3. Transcoding - Directory Structure
+#### 7.2.3. Transcoding - Containers
+
+The resulting container/extension will be determined by the source video and its compatibility with audio/subtitles.
+
+| Source | Transcode | Why |
+|---|---|---|
+| `.mkv` | `.mkv` | Supports any subtitle format. |
+| `.mp4`, `.m4v`, `.mov` | `.mp4` | They only support `mov_text` subtitles, which are supported in MP4. |
+| `.webm` | `.mkv` | WebM only supports VP8/VP9/AV1 video codecs and Opus/Vorbis audio codecs. |
+| `.avi` | `.mkv` | Lacks support for modern audio codecs. |
+| `.ts`, `.m2ts`, `.mts` | `.mkv` | `ffmpeg` can't write PGS into MPEG-TS, so a new container is required. |
+| `.wmv`, `.asf`, `.flv`, `.mpg`, `.mpeg`, `.vob`, `.ogv` and other video types | `.mkv` | Legacy containers with limited media codec and subtitle support. |
+| `.iso`, DVD / Blu-ray folders | `.mkv` | No playable extension to use. |
+
+<br>
+
+<p align="left">─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
+
+#### 7.2.4. Transcoding - Directory Structure
 
 **Transcode Locations**
 
@@ -855,18 +890,6 @@ Transcode file paths are determined by the video version ID, tier ID, tier versi
 
 The directory structure used for storing transcoded files, inside of the admin selected root locations, will be similar to the schema used by the Trickplay system. This is to protect against OS path length limits that may be triggered when using something else such as library, film, or video filename, or combination of all.
 
-Resulting extension will be determined by the source video and its compatibility with audio/subtitles.
-
-| Source | Transcode | Why |
-|---|---|---|
-| `.mkv` | `.mkv` | Supports any subtitle format. |
-| `.mp4`, `.m4v`, `.mov` | `.mp4` | They only support `mov_text` subtitles, which are supported in MP4. |
-| `.webm` | `.mkv` | WebM only supports VP8/VP9/AV1 video codecs and Opus/Vorbis audio codecs. |
-| `.avi` | `.mkv` | Lacks support for modern audio codecs. |
-| `.ts`, `.m2ts`, `.mts` | `.mkv` | `ffmpeg` can't write PGS into MPEG-TS, so a new container is required. |
-| `.wmv`, `.asf`, `.flv`, `.mpg`, `.mpeg`, `.vob`, `.ogv` and other video types | `.mkv` | Legacy containers with limited media codec and subtitle support. |
-| `.iso`, DVD / Blu-ray folders | `.mkv` | No playable extension to use. |
-
 <br>
 
 The formula for determining the transcoded video's `filename` would be as follows:
@@ -876,7 +899,7 @@ The formula for determining the transcoded video's `filename` would be as follow
 * `<tierId>` - Lowercase GUID with no hyphens (`Guid.ToString("N")`).
 * `<tierVersion>` - The change version ID of the tier, starts at 1, increments when the tier is edited when *invalidate existing transcodes* ticked.
 * `<audioStreamIndex>` - The audio stream index supplied by the client, or the user's calculated default for that video. With Jellyfin's index across all streams, the first audio track is usually 1.
-* `<ext>` - See above table.
+* `<ext>` - See [7.2.3](#723-transcoding---containers).
 
 <br>
 
@@ -928,7 +951,7 @@ Example:
 
 #### 7.3.1. Manual Curation - Download API
 
-Manual Curation makes use of the same download links as Transcoding (see [7.1.2](#712-download-api)): the existing `Download` link sends requests to `GET Items/{itemId}/Download?optimized=true`, and the `Download Original` link, when shown, the unchanged route. Curated files already exist so there is no `Prepare` step in the workflow.
+Manual Curation makes use of the same download links as Transcoding (see [7.1.3](#713-download-api)): the existing `Download` link sends requests to `GET Items/{itemId}/Download?optimized=true`, and the `Download Original` link, when shown, the unchanged route. Curated files already exist so there is no `Prepare` step in the workflow.
 
 The file returned will match the user's quality tier preference (or server default), or if no optimised file exists for the item, the original is served.
 
@@ -1009,12 +1032,12 @@ If the admin includes tier-appended files, the tier matching the preference woul
 Points not yet decided, where a maintainer's view would settle the design:
 
 1. **Tier lists.** If both options are implemented, should Transcoding and Manual Curation share one tier list, or have their own? I would suggest shared, but since fields like bitrate don't apply to curated, perhaps two lists would be better.
-2. **Tier storage.** Proposal and MVP store them in XML. If we want to record transcoded videos in the database, should tier lists be stored in the database as well? (See [7.1.1](#711-global-settings-screen).)
-3. **Permission for transcoded downloads.** Using "Allow video playback that requires transcoding" is simplest, but should we just have a new user permission for transcode downloads? (See [7.1.1](#711-global-settings-screen).)
+2. **Tier storage.** Proposal and MVP store them in XML. If we want to record transcoded videos in the database, should tier lists be stored in the database as well? (See [7.1.1](#711-global-settings-screen)).
+3. **Permission for transcoded downloads.** Using "Allow video playback that requires transcoding" is simplest, but should we just have a new user permission for transcode downloads? (See [7.1.2](#712-permissions)).
 4. **Users without that permission.** Serve them the original video, like today, or refuse download?
 5. **Audio codec.** The audio is downmixed to stereo: is AAC a suitable default?
-6. **A failed transcode.** Should `Prepare` return an error response (`500`) or an ok (`200`) with the state as `failed`? (See [7.1.2](#712-download-api).)
-7. **Scheduled pre-transcode.** Which videos, tiers, audio tracks, and should it count towards the limit etc. (See [5.3.3](#533-scheduled-pre-transcode).)
+6. **A failed transcode.** Should `Prepare` return an error response (`500`) or an ok (`200`) with the state as `failed`? (See [7.1.5](#715-response-codes)).
+7. **Scheduled pre-transcode.** Which videos, tiers, audio tracks, and should it count towards the limit etc. (See [5.3.3](#533-scheduled-pre-transcode)).
 8. **Hardware acceleration.** I recommended transcoded downloads should be unavailable without hardware acceleration (see [4.2.4 - Hardware vs Software](#424-hardware-vs-software)). Should we allow it regardless, with a warning if no hardware acceleration is set?
 
 <br>
