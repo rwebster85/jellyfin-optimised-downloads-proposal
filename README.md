@@ -1,6 +1,11 @@
 <details>
   <summary><b>Version history</b></summary>
 
+<br>
+
+* **19th Oct 2026**: Added Additional headers for easier navigation.
+* **21st Oct 2026**: More headers added.
+
 </details>
 
 <br>
