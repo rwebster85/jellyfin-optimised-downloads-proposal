@@ -262,7 +262,7 @@ The same transcodes on the server with hardware acceleration set to None, to sho
 
 *Results Notes*
 
-* One full-film run each. The QuickSync H.264 runs were repeated to measure CPU, and were within 3% of the speeds above.
+* One full-film run each. The QuickSync H.264 runs were repeated to measure CPU, and were within 3% of the speeds below.
 * CPU is the share of all 12 threads busy, sampled every 5 seconds. Peak load is the highest 1-minute load average during the run.
 * Software output usually falls below the 750 kbps cap, as Jellyfin's CRF decides the bitrate, so those files are smaller. Quality was not compared.
 * Output figures include the 192 kbps stereo AAC audio, so the 750 kbps video cap shows as about 940 kbps.
